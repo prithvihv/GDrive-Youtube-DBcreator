@@ -184,6 +184,7 @@ function playlistItemsListByPlaylistId(auth, requestData,callback1) {
     if(response.items.length!=0)
         callback1(false,response);
     if(response.nextPageToken){
+      console.log("token present")
       fs.readFile('client_secret.json', function processClientSecrets(err, content) {
         if (err) {
           console.log('Error loading client secret file: ' + err);
