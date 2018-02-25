@@ -18,6 +18,7 @@ urlParser = require('js-video-url-parser');
 var count = 0;
 
 function getVideos(playlistIDNODE,callback1){
+  console.log("get video logged");
   currentplaylist=playlistIDNODE;
   // Load client secrets from a local file.
   fs.readFile('client_secret.json', function processClientSecrets(err, content) {
@@ -181,10 +182,13 @@ function playlistItemsListByPlaylistId(auth, requestData,callback1) {
       response.items.forEach(element => {
         console.log(element.contentDetails);
       });*/
-    if(response.items.length!=0)
-        callback1(false,response);
+    if(response.items.length!=0){
+      callback1(false,response);
+      // console.log(response);
+    }
+      
     if(response.nextPageToken){
-      console.log("token present")
+      console.log("token present");
       fs.readFile('client_secret.json', function processClientSecrets(err, content) {
         if (err) {
           console.log('Error loading client secret file: ' + err);

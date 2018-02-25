@@ -4,6 +4,7 @@ var express = require("express");
 var app = express();
 var example = require("./example");
 
+
 var pushingkey;
 var etag;
 
@@ -25,14 +26,9 @@ app.get("/", (req, res) => {
       res.status(200).write("error");
     else {
       if (data) {
-
-      
+        console.log(data);
         etag = data['etag'] ;
         pushingkey = database.ref("/" + etag).set(data);
-        
-
-
-
       }else {
         console.log("null ");
       }
@@ -41,6 +37,9 @@ app.get("/", (req, res) => {
     res.status(200).write("done");
   });
 
+});
+app.get('/clearDB',(req,res)=>{
+  database.ref("/").set("h");
 });
 app.listen(3000);
 
