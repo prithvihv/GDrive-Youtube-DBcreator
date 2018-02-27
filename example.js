@@ -191,7 +191,9 @@ var processRequest = function (callback) {
             }
         }, playlistsListByChannelId, function(ArrayYoutubePlaylist){
             ArrayYoutubePlaylist.items.forEach(element => {
-                processs.getVideos(element.id, callback);
+                //pass this value and write it to the dp 
+                console.log(element.snippet.title);
+                processs.getVideos(element.id, callback , element.snippet.title);
             });
         });
         //writing call back here

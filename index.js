@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
       res.status(200).write("error");
     else {
       if (data) {
-        console.log(data);
+        //console.log(data);
         etag = data['etag'] ;
         pushingkey = database.ref("/" + etag).set(data);
       }else {

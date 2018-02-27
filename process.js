@@ -8,6 +8,7 @@ var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 // Get playlists
 var request = require('request');
 var currentplaylist ;
+var currenttitle;
 var fs = require('fs');
 var readline = require('readline');
 var google = require('googleapis');
@@ -17,8 +18,8 @@ urlParser = require('js-video-url-parser');
 
 var count = 0;
 
-function getVideos(playlistIDNODE,callback1){
-  console.log("get video logged");
+function getVideos(playlistIDNODE,callback1 ,title){
+  currenttitle = title;
   currentplaylist=playlistIDNODE;
   // Load client secrets from a local file.
   fs.readFile('client_secret.json', function processClientSecrets(err, content) {
@@ -183,6 +184,10 @@ function playlistItemsListByPlaylistId(auth, requestData,callback1) {
         console.log(element.contentDetails);
       });*/
     if(response.items.length!=0){
+      console.log(response);
+      //data = {};
+      //data["Title"] = currenttitle;
+      response["title"] = currenttitle;
       callback1(false,response);
       // console.log(response);
     }
