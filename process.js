@@ -7,8 +7,6 @@ var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 // Get playlists
 var request = require('request');
-var currentplaylist ;
-var currenttitle;
 var fs = require('fs');
 var readline = require('readline');
 var google = require('googleapis');
@@ -19,8 +17,7 @@ urlParser = require('js-video-url-parser');
 var count = 0;
 
 function getVideos(playlistIDNODE,callback1 ,title){
-  currenttitle = title;
-  currentplaylist=playlistIDNODE;
+  console.log("first function in process_js title :",title);
   // Load client secrets from a local file.
   fs.readFile('client_secret.json', function processClientSecrets(err, content) {
     if (err) {
@@ -35,7 +32,7 @@ function getVideos(playlistIDNODE,callback1 ,title){
         'part': 'snippet,contentDetails',
         'playlistId': playlistIDNODE
       }
-    }, playlistItemsListByPlaylistId,callback1);
+    }, playlistItemsListByPlaylistId,callback1,title);
   });
 }
 
@@ -46,7 +43,7 @@ function getVideos(playlistIDNODE,callback1 ,title){
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, requestData, callback,callback1) {
+function authorize(credentials, requestData, callback,callback1 ,title) {
   var clientSecret = credentials.installed.client_secret;
   var clientId = credentials.installed.client_id;
   var redirectUrl = credentials.installed.redirect_uris[0];
@@ -59,7 +56,7 @@ function authorize(credentials, requestData, callback,callback1) {
       getNewToken(oauth2Client, requestData, callback);
     } else {
       oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client, requestData,callback1);
+      callback(oauth2Client, requestData,callback1 ,title);
     }
   });
 }
@@ -170,7 +167,7 @@ function createResource(properties) {
 }
 
 
-function playlistItemsListByPlaylistId(auth, requestData,callback1) {
+function playlistItemsListByPlaylistId(auth, requestData,callback1 ,title) {
   var service = google.youtube('v3');
   var parameters = removeEmptyParameters(requestData['params']);
   parameters['auth'] = auth;
@@ -184,10 +181,11 @@ function playlistItemsListByPlaylistId(auth, requestData,callback1) {
         console.log(element.contentDetails);
       });*/
     if(response.items.length!=0){
-      console.log(response);
-      //data = {};
-      //data["Title"] = currenttitle;
-      response["title"] = currenttitle;
+      // console.log(response);
+      
+    
+      console.log("this is from the process.js when alll the vidoes of thatt playlist are got " , title);
+      response["title"] = title;
       callback1(false,response);
       // console.log(response);
     }

@@ -35,8 +35,8 @@ var fs = require('fs');
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, requestData, callback,callbackthisFile) {
-    
+function authorize(credentials, requestData, callback, callbackthisFile) {
+
     var clientSecret = credentials.installed.client_secret;
     var clientId = credentials.installed.client_id;
     var redirectUrl = credentials.installed.redirect_uris[0];
@@ -46,10 +46,10 @@ function authorize(credentials, requestData, callback,callbackthisFile) {
     // Check if we have previously stored a token.
     fs.readFile(TOKEN_PATH, function (err, token) {
         if (err) {
-            getNewToken(oauth2Client, requestData, callback,callbackthisFile);
+            getNewToken(oauth2Client, requestData, callback, callbackthisFile);
         } else {
             oauth2Client.credentials = JSON.parse(token);
-            callback(oauth2Client, requestData,callbackthisFile);
+            callback(oauth2Client, requestData, callbackthisFile);
         }
     });
 }
@@ -62,7 +62,7 @@ function authorize(credentials, requestData, callback,callbackthisFile) {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken(oauth2Client, requestData, callback,callbackthisFile) {
+function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
     var authUrl = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES
@@ -81,7 +81,7 @@ function getNewToken(oauth2Client, requestData, callback,callbackthisFile) {
             }
             oauth2Client.credentials = token;
             storeToken(token);
-            callback(oauth2Client, requestData,callbackthisFile);
+            callback(oauth2Client, requestData, callbackthisFile);
         });
     });
 }
@@ -160,7 +160,7 @@ function createResource(properties) {
 }
 
 
-function playlistsListByChannelId(auth, requestData,callbackthisFile) {
+function playlistsListByChannelId(auth, requestData, callbackthisFile) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
@@ -169,7 +169,6 @@ function playlistsListByChannelId(auth, requestData,callbackthisFile) {
             console.log('The API returned an error: ' + err);
             return;
         }
-        console.log(callbackthisFile);
         callbackthisFile(response);
     });
 }
@@ -189,16 +188,19 @@ var processRequest = function (callback) {
                 'maxResults': '25',
                 'part': 'snippet,contentDetails'
             }
-        }, playlistsListByChannelId, function(ArrayYoutubePlaylist){
+        }, playlistsListByChannelId, function (ArrayYoutubePlaylist) {
             ArrayYoutubePlaylist.items.forEach(element => {
                 //pass this value and write it to the dp 
-                console.log(element.snippet.title);
-                processs.getVideos(element.id, callback , element.snippet.title);
+                GetvideosProcess_js(element.id, element.snippet.title, callback)
             });
         });
         //writing call back here
     });
 
+    function GetvideosProcess_js(playlistid, title, callback) {
+        console.log(title, "from example.js");
+        processs.getVideos(playlistid, callback, title);
+    }
 
     // var url = 'https://www.youtube.com/user/LightoftheSelf/playlists';
     // try {

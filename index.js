@@ -26,14 +26,14 @@ app.get("/", (req, res) => {
       res.status(200).write("error");
     else {
       if (data) {
-        //console.log(data);
-        etag = data['etag'] ;
+        etag = data['title'] ;
+        // console.log(etag,"from index.js printing title");
+        // pushingkey = database.ref("/" + etag).set(data);
         pushingkey = database.ref("/" + etag).set(data);
       }else {
         console.log("null ");
       }
     }
-    //comment that later
     res.status(200).write("done");
   });
 
