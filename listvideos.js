@@ -1,31 +1,42 @@
-var request = require('request');
-var processs = require('./process');
-var cheerio = require('cheerio');
 
+var fs = require('fs');
 var readline = require('readline');
 var google = require('googleapis');
 var googleAuth = require('google-auth-library');
-var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 
+// If modifying these scopes, delete your previously saved credentials
+// at ~/.credentials/google-apis-nodejs-quickstart.json
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
-// Get playlists
-var request = require('request');
-var currentplaylist;
 
 
-var google = require('googleapis');
-var googleAuth = require('google-auth-library');
-//const isPlaylist = require("is-playlist");
-urlParser = require('js-video-url-parser');
+var processRequest = function (callbackIndex) {
+    fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+        if (err) {
+            console.log('Error loading client secret file: ' + err);
+            return;
+        }
+        // Authorize a client with the loaded credentials, then call the YouTube API.
+        //See full code sample for authorize() function code.
+        authorize(JSON.parse(content), {
+            'params': {
+                'maxResults': '50',
+                'part': 'snippet',
+                'channelId' : 'UCkFglwbnFHOuQYRGbe9yY3Q',
+                'type': 'video'
+            }
+        }, searchListByKeyword ,callbackIndex);
+        //writing call back here
+    });
+    
 
-
-var fs = require('fs');
-
-// Load client secrets from a local file.
-// Load client secrets from a local file.
+// function GetvideosProcess_js(playlistid, title, callback) {
+//     console.log(title, "from example.js");
+//     processs.getVideos(playlistid, callback, title);
+// }
+}
 
 
 /**
@@ -35,8 +46,7 @@ var fs = require('fs');
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, requestData, callback, callbackthisFile) {
-
+function authorize(credentials, requestData, callback,callbackIndex) {
     var clientSecret = credentials.installed.client_secret;
     var clientId = credentials.installed.client_id;
     var redirectUrl = credentials.installed.redirect_uris[0];
@@ -46,10 +56,10 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
     // Check if we have previously stored a token.
     fs.readFile(TOKEN_PATH, function (err, token) {
         if (err) {
-            getNewToken(oauth2Client, requestData, callback, callbackthisFile);
+            getNewToken(oauth2Client, requestData, callback);
         } else {
             oauth2Client.credentials = JSON.parse(token);
-            callback(oauth2Client, requestData, callbackthisFile);
+            callback(oauth2Client, requestData,callbackIndex);
         }
     });
 }
@@ -62,7 +72,7 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
+function getNewToken(oauth2Client, requestData, callback) {
     var authUrl = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES
@@ -81,7 +91,7 @@ function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
             }
             oauth2Client.credentials = token;
             storeToken(token);
-            callback(oauth2Client, requestData, callbackthisFile);
+            callback(oauth2Client, requestData,callbackIndex);
         });
     });
 }
@@ -160,47 +170,18 @@ function createResource(properties) {
 }
 
 
-function playlistsListByChannelId(auth, requestData, callbackthisFile) {
+function searchListByKeyword(auth, requestData,callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
-    service.playlists.list(parameters, function (err, response) {
+    service.search.list(parameters, function (err, response) {
         if (err) {
             console.log('The API returned an error: ' + err);
             return;
         }
-        callbackthisFile(response);
+        console.log(response);
+        callbackIndex(false,response);
     });
-}
-
-
-var processRequest = function (callback) {
-    fs.readFile('client_secret.json', function processClientSecrets(err, content) {
-        if (err) {
-            console.log('Error loading client secret file: ' + err);
-            return;
-        }
-        // Authorize a client with the loaded credentials, then call the YouTube API.
-        //See full code sample for authorize() function code.
-        authorize(JSON.parse(content), {
-            'params': {
-                'channelId': 'UCkFglwbnFHOuQYRGbe9yY3Q',
-                'maxResults': '25',
-                'part': 'snippet,contentDetails'
-            }
-        }, playlistsListByChannelId, function (ArrayYoutubePlaylist) {
-            ArrayYoutubePlaylist.items.forEach(element => {
-                //pass this value and write it to the dp 
-                GetvideosProcess_js(element.id, element.snippet.title, callback)
-            });
-        });
-        //writing call back here
-    });
-
-    function GetvideosProcess_js(playlistid, title, callback) {
-        console.log(title, "from example.js");
-        processs.getVideos(playlistid, callback, title);
-    }
 }
 module.exports = {
     processRequest: processRequest
