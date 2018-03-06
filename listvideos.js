@@ -15,8 +15,8 @@ var param = {
     'params': {
         'maxResults': '50',
         'part': 'snippet',
-        'channelId': 'UCrsXeU6cuGStvMCUhAgULyg',
-        'type': 'video'
+        'channelId': 'UCNmRmSpIJYqu7ttPLWLx2sw',
+        'type': 'video',   
     }
 }
 
@@ -38,6 +38,8 @@ var processRequest = function (callbackIndex ,token) {
         //             //UCrsXeU6cuGStvMCUhAgULyg Light of the Self Foundation
         if(token){
             param.params.pageToken = token;
+            
+            console.log("params :",param);
         }
         authorize(JSON.parse(content),param , searchListByKeyword, callbackIndex);
         //writing call back here
