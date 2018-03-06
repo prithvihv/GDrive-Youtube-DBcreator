@@ -12,30 +12,70 @@ var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 
 
-var processRequest = function (callbackIndex) {
+var processRequest = function (callbackIndex, Token) {
+    console.log("list video");
+    // console.log(Token);
+    // if (Token) {
+    //     console.log("TOKEN IS THERE RA");
+    //     authorize(JSON.parse(content), {
+    //         'params': {
+    //             //UCkFglwbnFHOuQYRGbe9yY3Q prithvi channel
+    //             //UCNmRmSpIJYqu7ttPLWLx2sw atmajyothisatsang
+    //             //UCrsXeU6cuGStvMCUhAgULyg Light of the Self Foundation
+    //             'pagetoken': Token,
+    //             'maxResults': '50',
+    //             'part': 'snippet',
+    //             'channelId': 'UCrsXeU6cuGStvMCUhAgULyg',
+    //             'type': 'video'
+    //         }
+    //     }, searchListByKeyword, callbackIndex);
+    // }
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+
         if (err) {
             console.log('Error loading client secret file: ' + err);
             return;
         }
         // Authorize a client with the loaded credentials, then call the YouTube API.
         //See full code sample for authorize() function code.
-        authorize(JSON.parse(content), {
-            'params': {
-                'maxResults': '50',
-                'part': 'snippet',
-                'channelId' : 'UCkFglwbnFHOuQYRGbe9yY3Q',
-                'type': 'video'
-            }
-        }, searchListByKeyword ,callbackIndex);
+        if (Token != null || Token != undefined) {
+            console.log("TOKEN IS THERE RA");
+            authorize(JSON.parse(content), {
+                'params': {
+                    //UCkFglwbnFHOuQYRGbe9yY3Q prithvi channel
+                    //UCNmRmSpIJYqu7ttPLWLx2sw atmajyothisatsang
+                    //UCrsXeU6cuGStvMCUhAgULyg Light of the Self Foundation
+                    'pagetoken': Token,
+                    'maxResults': '50',
+                    'part': 'snippet',
+                    'channelId': 'UCrsXeU6cuGStvMCUhAgULyg',
+                    'type': 'video'
+                }
+            }, searchListByKeyword, callbackIndex);
+        } else {
+            console.log("NO TOKEN DA");
+            authorize(JSON.parse(content), {
+                'params': {
+                    //UCkFglwbnFHOuQYRGbe9yY3Q prithvi channel
+                    //UCNmRmSpIJYqu7ttPLWLx2sw atmajyothisatsang
+                    //UCrsXeU6cuGStvMCUhAgULyg Light of the Self Foundation
+
+                    'maxResults': '50',
+                    'part': 'snippet',
+                    'channelId': 'UCrsXeU6cuGStvMCUhAgULyg',
+                    'type': 'video'
+                }
+            }, searchListByKeyword, callbackIndex);
+        }
+
         //writing call back here
     });
-    
 
-// function GetvideosProcess_js(playlistid, title, callback) {
-//     console.log(title, "from example.js");
-//     processs.getVideos(playlistid, callback, title);
-// }
+
+    // function GetvideosProcess_js(playlistid, title, callback) {
+    //     console.log(title, "from example.js");
+    //     processs.getVideos(playlistid, callback, title);
+    // }
 }
 
 
@@ -46,7 +86,7 @@ var processRequest = function (callbackIndex) {
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, requestData, callback,callbackIndex) {
+function authorize(credentials, requestData, callback, callbackIndex) {
     var clientSecret = credentials.installed.client_secret;
     var clientId = credentials.installed.client_id;
     var redirectUrl = credentials.installed.redirect_uris[0];
@@ -59,7 +99,7 @@ function authorize(credentials, requestData, callback,callbackIndex) {
             getNewToken(oauth2Client, requestData, callback);
         } else {
             oauth2Client.credentials = JSON.parse(token);
-            callback(oauth2Client, requestData,callbackIndex);
+            callback(oauth2Client, requestData, callbackIndex);
         }
     });
 }
@@ -91,7 +131,7 @@ function getNewToken(oauth2Client, requestData, callback) {
             }
             oauth2Client.credentials = token;
             storeToken(token);
-            callback(oauth2Client, requestData,callbackIndex);
+            callback(oauth2Client, requestData, callbackIndex);
         });
     });
 }
@@ -170,7 +210,7 @@ function createResource(properties) {
 }
 
 
-function searchListByKeyword(auth, requestData,callbackIndex) {
+function searchListByKeyword(auth, requestData, callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
@@ -179,8 +219,9 @@ function searchListByKeyword(auth, requestData,callbackIndex) {
             console.log('The API returned an error: ' + err);
             return;
         }
-        console.log(response);
-        callbackIndex(false,response);
+        //console.log(response);
+        callbackIndex(false, response , response['nextPageToken'] );
+        
     });
 }
 module.exports = {

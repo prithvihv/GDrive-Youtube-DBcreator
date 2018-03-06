@@ -17,21 +17,37 @@ var config = {
 };
 firebase.initializeApp(config);
 var database = firebase.database();
-
+var Token ;
 app.get("/listvideo", (req, res) => {
-  listvideo.processRequest(function (err, data) {
+  recall(null ,res);
+});
+
+function recall(Token ,res) {
+  console.log("recall functions");
+  listvideo.processRequest(function (err, data ,Token) {
+    console.log("response");
     if (err)
       res.status(200).write("error");
     else {
-      if (data) {
-        pushingkey = database.ref("/videos").set(data).then(res.status(200).write("done"));
-      }else {
-        console.log("null ");
+      if (Token) {
+        console.log(Token);
+        var a =5;
+        while (data['nextPageToken'] && a>0) {
+          console.log("while loop da")
+          recall(Token);
+          a--;
+        }
       }
+      // if (data) {
+      //   pushingkey = database.ref("/videos").set(data).then(res.status(200).write("done"));
+      // }else {
+      //   console.log("null ");
+      // }
     }
     res.status(200).write("done");
-  });
-});
+  }, Token);
+}
+
 
 app.get("/", (req, res) => {
   example.processRequest(function (err, data) {
@@ -39,12 +55,12 @@ app.get("/", (req, res) => {
       res.status(200).write("error");
     else {
       if (data) {
-        etag = data['title'] ;
+        etag = data['title'];
         // console.log(etag,"from index.js printing title");
         // pushingkey = database.ref("/" + etag).set(data);
         pushingkey = database.ref("/" + etag).set(data).then(res.status(200).write("done"));
-        
-      }else {
+
+      } else {
         console.log("null ");
       }
     }
@@ -52,7 +68,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get('/clearDB',(req,res)=>{
+app.get('/clearDB', (req, res) => {
   database.ref("/").set("h");
   res.status(200).write("done");
 });

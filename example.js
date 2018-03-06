@@ -184,7 +184,9 @@ var processRequest = function (callback) {
         //See full code sample for authorize() function code.
         authorize(JSON.parse(content), {
             'params': {
-                'channelId': 'UCkFglwbnFHOuQYRGbe9yY3Q',
+                //UCkFglwbnFHOuQYRGbe9yY3Q prithvi channel
+                //UCNmRmSpIJYqu7ttPLWLx2sw atmajyothisatsang
+                'channelId': 'UCNmRmSpIJYqu7ttPLWLx2sw',
                 'maxResults': '25',
                 'part': 'snippet,contentDetails'
             }
