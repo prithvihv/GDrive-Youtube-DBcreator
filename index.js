@@ -1,7 +1,9 @@
 var express = require("express");
 var app = express();
+
 var example = require("./example");
 var listvideo = require("./listvideos");
+var playlistitemTHING = require('./playlistitemTHING');
 
 var pushingkey;
 var etag;
@@ -19,28 +21,31 @@ firebase.initializeApp(config);
 var database = firebase.database();
 
 var callnumber =1;
+var flag1 =true; //first time
 
 app.get("/listvideo", (req, res) => {
-  listvideo.processRequest(function again(err, data, token) {
+  playlistitemTHING.processRequest(function again(err, data, token) {
     console.log("token from index callback")
     console.log(token);
     if (err)
       res.status(200).write("error");
     else {
+      console.log(data["items"].length , "before if") ;
+      //data["items"].length > 0
       if (data) {
         pushingkey = database.ref("/videos" + callnumber ).set(data).then(res.status(200).write("done"));
         callnumber++;
         if (token) {
           console.log("going to call process");
-          listvideo.processRequest(again , token);
+          playlistitemTHING.processRequest(again , token, 'UUNmRmSpIJYqu7ttPLWLx2sw');
         }
+        console.log(callnumber);
       } else {
         console.log("null ");
       }
     }
-
     res.status(200).write("done");
-  });
+  },null,'UUNmRmSpIJYqu7ttPLWLx2sw');
 });
 
 // app.get("/", (req, res) => {
