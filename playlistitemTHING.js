@@ -20,8 +20,8 @@ var param = {
 };
 
 var processRequest = function (callbackIndex, token , playlistChannel) {
-    console.log("process called");
-    console.log(token);
+    // console.log("process called");
+    // console.log(token);
     // Load client secrets from a local file.
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
         if (err) {
@@ -31,7 +31,6 @@ var processRequest = function (callbackIndex, token , playlistChannel) {
         param.params.playlistId = playlistChannel;
         if(token){
             param.params.pageToken = token;    
-            console.log("params :",param);
         }
         // Authorize a client with the loaded credentials, then call the YouTube API.
         //See full code sample for authorize() function code.
@@ -181,7 +180,8 @@ function playlistItemsListByPlaylistId(auth, requestData ,callbackIndex) {
             return;
         }
         //console.log(response);
-        console.log("got response re routing");
+        //console.log("got response re routing");
+        console.log(response['nextPageToken']);
         callbackIndex(false, response , response['nextPageToken']);
     });
 }

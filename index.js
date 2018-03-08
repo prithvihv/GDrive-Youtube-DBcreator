@@ -20,59 +20,33 @@ var config = {
 firebase.initializeApp(config);
 var database = firebase.database();
 
-var callnumber =1;
-var flag1 =true; //first time
+var callnumber= 0 ;
+var ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw','UUrsXeU6cuGStvMCUhAgULyg'] ;
+var indexArrayVideos= 0;
 
 app.get("/listvideo", (req, res) => {
   playlistitemTHING.processRequest(function again(err, data, token) {
-    console.log("token from index callback")
-    console.log(token);
     if (err)
       res.status(200).write("error");
     else {
-      console.log(data["items"].length , "before if") ;
+      // console.log(data["items"].length , "before if") ;
+      console.log(callnumber);
       //data["items"].length > 0
-      if (data) {
+      if (indexArrayVideos<2) {
         pushingkey = database.ref("/videos" + callnumber ).set(data).then(res.status(200).write("done"));
         callnumber++;
         if (token) {
-          console.log("going to call process");
-          playlistitemTHING.processRequest(again , token, 'UUNmRmSpIJYqu7ttPLWLx2sw');
+          playlistitemTHING.processRequest(again , token, ArrayChannelVideos[indexArrayVideos]);
+        }else{
+          token = null;
+          indexArrayVideos++;
+          playlistitemTHING.processRequest(again , token , ArrayChannelVideos[indexArrayVideos]);
         }
-        console.log(callnumber);
-      } else {
-        console.log("null ");
-      }
+      } 
     }
     res.status(200).write("done");
-  },null,'UUNmRmSpIJYqu7ttPLWLx2sw');
+  },null,ArrayChannelVideos[indexArrayVideos]);
 });
-
-// app.get("/", (req, res) => {
-//   example.processRequest(function (err, data, token) {
-//     console.log("token from index callback")
-//     console.log(token);
-//     if (err)
-//       res.status(200).write("error");
-//     else {
-//       if (data) {
-//         etag = data['title'];
-//         // console.log(etag,"from index.js printing title");
-//         // pushingkey = database.ref("/" + etag).set(data);
-//         pushingkey = database.ref("/" + etag).set(data).then(res.status(200).write("done"));
-//         if(data['nextPageToken']){
-//           console.log("going to call process");
-//           // example.processRequest(again , token);
-//         }
-//       } else {
-//         console.log("null ");
-//       }
-//     }
-//     res.status(200).write("done");
-//   },token);
-// });
-
-
 
 app.get("/", (req, res) => {
   example.processRequest(function (err, data) {
