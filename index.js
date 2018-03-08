@@ -33,7 +33,7 @@ app.get("/listvideo", (req, res) => {
       console.log(callnumber);
       //data["items"].length > 0
       if (indexArrayVideos<2) {
-        pushingkey = database.ref("/videos" + callnumber ).set(data).then(res.status(200).write("done"));
+        pushingkey = database.ref("/videos/packet" + callnumber ).set(data).then(res.status(200).write("done"));
         callnumber++;
         if (token) {
           playlistitemTHING.processRequest(again , token, ArrayChannelVideos[indexArrayVideos]);
