@@ -182,9 +182,13 @@ var processRequest = function (callback) {
         }
         // Authorize a client with the loaded credentials, then call the YouTube API.
         //See full code sample for authorize() function code.
+        //             //UCkFglwbnFHOuQYRGbe9yY3Q prithvi channel
+        //             //UCNmRmSpIJYqu7ttPLWLx2sw atmajyothisatsang UUNmRmSpIJYqu7ttPLWLx2sw
+        //             //UCrsXeU6cuGStvMCUhAgULyg Light of the Self Foundation UUrsXeU6cuGStvMCUhAgULyg
+        //UCjXfkj5iapKHJrhYfAF9ZGg
         authorize(JSON.parse(content), {
             'params': {
-                'channelId': 'UCkFglwbnFHOuQYRGbe9yY3Q',
+                'channelId': 'UCjXfkj5iapKHJrhYfAF9ZGg',
                 'maxResults': '25',
                 'part': 'snippet,contentDetails'
             }

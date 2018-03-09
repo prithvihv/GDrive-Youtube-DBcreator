@@ -57,8 +57,7 @@ app.get("/", (req, res) => {
         etag = data['title'];
         // console.log(etag,"from index.js printing title");
         // pushingkey = database.ref("/" + etag).set(data);
-        pushingkey = database.ref("/" + etag).set(data).then(res.status(200).write("done"));
-
+        pushingkey = database.ref("/playlists/" + etag).set(data).then(res.status(200).write("done"));
       } else {
         console.log("null ");
       }
@@ -68,8 +67,10 @@ app.get("/", (req, res) => {
 });
 
 app.get('/clearDB', (req, res) => {
-  database.ref("/").set("h");
-  res.status(200).write("done");
+  database.ref("/").set("h").then(function(){
+    console.log("db cleared");
+    res.status(200).write("done");
+  });
 });
 
 app.listen(3000);
