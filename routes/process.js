@@ -22,9 +22,8 @@ var param = {
   }
 };
 
-function getVideos(playlistIDNODE, callback1, title) {
+function getVideos(playlistIDNODE, callback1, title, token) {
   // Load client secrets from a local file.
-  console.log("from the proccessor da",playlistIDNODE);
   fs.readFile('client_secret.json', function processClientSecrets(err, content) {
     if (err) {
       console.log('Error loading client secret file: ' + err);
@@ -32,11 +31,14 @@ function getVideos(playlistIDNODE, callback1, title) {
     }
     // Authorize a client with the loaded credentials, then call the YouTube API.
     //See full code sample for authorize() function code.
-    param['playlistId'] = playlistIDNODE;
-    authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callback1, title , playlistIDNODE);
+    param.params.playlistId = playlistIDNODE;
+    console.log(token);
+    if (token != null || token != undefined)
+      param.params.pageToken = token;
+    authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callback1, title, playlistIDNODE);
   });
 }
-function authorize(credentials, requestData, callback, callback1, title ,playlistIDNODE) {
+function authorize(credentials, requestData, callback, callback1, title, playlistIDNODE) {
   var clientSecret = credentials.installed.client_secret;
   var clientId = credentials.installed.client_id;
   var redirectUrl = credentials.installed.redirect_uris[0];
@@ -49,7 +51,7 @@ function authorize(credentials, requestData, callback, callback1, title ,playlis
       getNewToken(oauth2Client, requestData, callback);
     } else {
       oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client, requestData, callback1, title ,playlistIDNODE);
+      callback(oauth2Client, requestData, callback1, title, playlistIDNODE);
     }
   });
 }
@@ -129,14 +131,10 @@ function createResource(properties) {
 var ttle;
 var plid;
 var self;
-function playlistItemsListByPlaylistId(auth, requestData, callback1, title ,playlistIDNODE) {
-  self = this;
-  ttle = this.title;
-  plid = this.playlistIDNODE;
+function playlistItemsListByPlaylistId(auth, requestData, callback1, title, playlistIDNODE) {
   var service = google.youtube('v3');
   var parameters = removeEmptyParameters(requestData['params']);
   parameters['auth'] = auth;
-  //console.log(parameters);
   parameters['playlistId'] = playlistIDNODE;
   service.playlistItems.list(parameters, function (err, response) {
     if (err) {
@@ -148,41 +146,32 @@ function playlistItemsListByPlaylistId(auth, requestData, callback1, title ,play
         console.log(element.contentDetails);
       });*/
     if (response['nextPageToken'] == null || response['nextPageToken'] == undefined) {
-      // console.log(response);
-      // console.log("this is from the process.js when alll the vidoes of thatt playlist are got ", title);
       console.log("no token");
       response["title"] = title;
-      console.log(response);
+      //console.log(response);
       callback1(false, response);
       // console.log(response);
     }
-    
+
     if (response['nextPageToken'] != null || response['nextPageToken'] != undefined) {
-      console.log("token present");
-      console.log(title);
-      var nignig = this;
-      fs.readFile('client_secret.json', function processClientSecrets(err, content) {
-        
-        if (err) {
-          console.log('Error loading client secret file: ' + err);
-          return;
-        }
-        // Authorize a client with the loaded credentials, then call the YouTube API.
-        //See full code sample for authorize() function code.
-        // authorize(JSON.parse(content), {
-        //   'params': {
-        //     'maxResults': '50',
-        //     'pageToken': response.nextPageToken,
-        //     'part': 'snippet,contentDetails',
-        //     'playlistId': currentplaylist
-        //   }
-        // }, playlistItemsListByPlaylistId);
-        response['playlistid'] = nignig.playlistIDNODE;
-        response['title']=nignig.title;
-        //console.log(response);
-        callback1(false,response);
-        // playlistItemsListByPlaylistId(that.auth,that.parameters ,that.callback1,that.title ,that.playlistIDNODE );
-      });
+      console.log("token present", " ", title);
+      if (err) {
+        console.log('Error loading client secret file: ' + err);
+        return;
+      }
+      // Authorize a client with the loaded credentials, then call the YouTube API.
+      //See full code sample for authorize() function code.
+      // authorize(JSON.parse(content), {
+      //   'params': {
+      //     'maxResults': '50',
+      //     'pageToken': response.nextPageToken,
+      //     'part': 'snippet,contentDetails',
+      //     'playlistId': currentplaylist
+      //   }
+      // }, playlistItemsListByPlaylistId);
+      response['playlistid'] = playlistIDNODE;
+      response['title'] = title;
+      callback1(false, response);
     }
   });
 }

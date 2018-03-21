@@ -27,7 +27,7 @@ var proccess = require("../routes/process");
 
 //random variables
 var ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw', 'UUrsXeU6cuGStvMCUhAgULyg'];
-var ArrayPlaylist = ['UCrsXeU6cuGStvMCUhAgULyg' , 'UCNmRmSpIJYqu7ttPLWLx2sw'];
+var ArrayPlaylist = ['UCrsXeU6cuGStvMCUhAgULyg', 'UCNmRmSpIJYqu7ttPLWLx2sw'];
 var callnumber = 0;
 var indexArrayVideos = 0;
 
@@ -90,29 +90,27 @@ app.get('/listvideo', (req, res) => {
 
 //START PlaylistsAndVideos routes---------------------------------------------------------//
 app.get("/playlist", (req, res) => {
+    var call=0;
     playlist.processRequest(function again(err, data) {
         if (err)
             res.status(200).write("error");
         else {
-            if (indexArrayVideos < ArrayChannelVideos.length) {
-                database.ref("/playlists/" + data['title'] + "/packet" + callnumber).set(data);
-                callnumber++;
-                if (data['nextPageToken'] != null || data['nextPageToken'] != undefined) {
-                    proccess.getVideos(data['playlistid'], again, data['title']);
-                } else {
-                    callnumber=0;
-                    console.log("OR");
-                    res.status(200).write("Completed writing");
-                    //indexArrayVideos++;
-                    // if (indexArrayVideos < ArrayChannelVideos.length)
-                    //     playlist.processRequest(again);
-                    // else {
-                    //     console.log("done da u chill now");
-                    //     res.status(200).write("DOOONNEEEE")
-                    // }
-                }
+            database.ref("/playlists/" + data['title'] + "/packet" + call).set(data);
+            call++;
+            if (data['nextPageToken'] != null || data['nextPageToken'] != undefined) {
+                console.log("getting more videos");
+                proccess.getVideos(data['playlistid'], again, data['title'] ,data['nextPageToken']);
             } else {
+                call = 0;
+                console.log("OR");
                 res.status(200).write("Completed writing");
+                //indexArrayVideos++;
+                // if (indexArrayVideos < ArrayChannelVideos.length)
+                //     playlist.processRequest(again);
+                // else {
+                //     console.log("done da u chill now");
+                //     res.status(200).write("DOOONNEEEE")
+                // }
             }
         }
     });
