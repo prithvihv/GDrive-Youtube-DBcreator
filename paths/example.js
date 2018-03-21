@@ -188,8 +188,8 @@ var processRequest = function (callback) {
         //UCjXfkj5iapKHJrhYfAF9ZGg
         authorize(JSON.parse(content), {
             'params': {
-                'channelId': 'UCjXfkj5iapKHJrhYfAF9ZGg',
-                'maxResults': '25',
+                'channelId': 'UCrsXeU6cuGStvMCUhAgULyg',
+                'maxResults': '50',
                 'part': 'snippet,contentDetails'
             }
         }, playlistsListByChannelId, function (ArrayYoutubePlaylist) {
