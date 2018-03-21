@@ -22,8 +22,9 @@ var param = {
   }
 };
 
-function getVideos(playlistIDNODE, callback1, title, token) {
+function getVideos(playlistIDNODE, callback1, title, token, call) {
   // Load client secrets from a local file.
+  console.log(call);
   fs.readFile('client_secret.json', function processClientSecrets(err, content) {
     if (err) {
       console.log('Error loading client secret file: ' + err);
@@ -32,13 +33,12 @@ function getVideos(playlistIDNODE, callback1, title, token) {
     // Authorize a client with the loaded credentials, then call the YouTube API.
     //See full code sample for authorize() function code.
     param.params.playlistId = playlistIDNODE;
-    console.log(token);
     if (token != null || token != undefined)
       param.params.pageToken = token;
-    authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callback1, title, playlistIDNODE);
+    authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callback1, title, playlistIDNODE, call);
   });
 }
-function authorize(credentials, requestData, callback, callback1, title, playlistIDNODE) {
+function authorize(credentials, requestData, callback, callback1, title, playlistIDNODE, call) {
   var clientSecret = credentials.installed.client_secret;
   var clientId = credentials.installed.client_id;
   var redirectUrl = credentials.installed.redirect_uris[0];
@@ -51,7 +51,7 @@ function authorize(credentials, requestData, callback, callback1, title, playlis
       getNewToken(oauth2Client, requestData, callback);
     } else {
       oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client, requestData, callback1, title, playlistIDNODE);
+      callback(oauth2Client, requestData, callback1, title, playlistIDNODE, call);
     }
   });
 }
@@ -131,7 +131,7 @@ function createResource(properties) {
 var ttle;
 var plid;
 var self;
-function playlistItemsListByPlaylistId(auth, requestData, callback1, title, playlistIDNODE) {
+function playlistItemsListByPlaylistId(auth, requestData, callback1, title, playlistIDNODE, call) {
   var service = google.youtube('v3');
   var parameters = removeEmptyParameters(requestData['params']);
   parameters['auth'] = auth;
@@ -149,7 +149,7 @@ function playlistItemsListByPlaylistId(auth, requestData, callback1, title, play
       console.log("no token");
       response["title"] = title;
       //console.log(response);
-      callback1(false, response);
+      callback1(false, response, call);
       // console.log(response);
     }
 
@@ -171,7 +171,7 @@ function playlistItemsListByPlaylistId(auth, requestData, callback1, title, play
       // }, playlistItemsListByPlaylistId);
       response['playlistid'] = playlistIDNODE;
       response['title'] = title;
-      callback1(false, response);
+      callback1(false, response, call);
     }
   });
 }

@@ -90,18 +90,20 @@ app.get('/listvideo', (req, res) => {
 
 //START PlaylistsAndVideos routes---------------------------------------------------------//
 app.get("/playlist", (req, res) => {
-    var call=0;
-    playlist.processRequest(function again(err, data) {
+    playlist.processRequest(function again(err, data ,call) {
+        if(call==null||call==undefined){
+            call =0;
+            console.log("undffffined call")
+        }
         if (err)
             res.status(200).write("error");
         else {
             database.ref("/playlists/" + data['title'] + "/packet" + call).set(data);
-            call++;
             if (data['nextPageToken'] != null || data['nextPageToken'] != undefined) {
                 console.log("getting more videos");
-                proccess.getVideos(data['playlistid'], again, data['title'] ,data['nextPageToken']);
+                call = call+1;
+                proccess.getVideos(data['playlistid'], again, data['title'] ,data['nextPageToken'],call);
             } else {
-                call = 0;
                 console.log("OR");
                 res.status(200).write("Completed writing");
                 //indexArrayVideos++;
