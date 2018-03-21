@@ -1,8 +1,5 @@
 var request = require('request');
 var processs = require('./process');
-var cheerio = require('cheerio');
-
-var readline = require('readline');
 var google = require('googleapis');
 var googleAuth = require('google-auth-library');
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
@@ -208,5 +205,4 @@ var processRequest = function (callback) {
 }
 module.exports = {
     processRequest: processRequest
-
 };

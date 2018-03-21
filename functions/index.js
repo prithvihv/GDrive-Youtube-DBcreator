@@ -1,28 +1,40 @@
-const functions = require('firebase-functions');
+//Node stuff
 var express = require("express");
 const cors = require("cors")
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
 
-// const firebase = require("firebase");
-// var config = {
-//     apiKey: "AIzaSyAufTAIIp28e8nJL_Ek1DeDxuCEJKJHKI4",
-//     authDomain: "ajapp-192505.firebaseapp.com",
-//     databaseURL: "https://ajapp-192505.firebaseio.com",
-//     projectId: "ajapp-192505",
-//     storageBucket: "ajapp-192505.appspot.com",
-//     messagingSenderId: "512241350585"
-// };
-// firebase.initializeApp(config);
-// const admin = require('firebase-admin');
-// admin.initializeApp(functions.config().firebase);
-// var database = firebase.database();
+//firebase
+const firebase = require("firebase");
+var config = {
+    apiKey: "AIzaSyAufTAIIp28e8nJL_Ek1DeDxuCEJKJHKI4",
+    authDomain: "ajapp-192505.firebaseapp.com",
+    databaseURL: "https://ajapp-192505.firebaseio.com",
+    projectId: "ajapp-192505",
+    storageBucket: "ajapp-192505.appspot.com",
+    messagingSenderId: "512241350585"
+};
+//const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+
+//more firebase
+
+firebase.initializeApp(config);
+var database = firebase.database();
+//admin.initializeApp(functions.config().firebase);
+//routes
+//var playlist = require("../routes/playlist");
+var playlistitemTHING = require('../routes/playlistitemTHING');
+
+//random variables
+var ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw', 'UUrsXeU6cuGStvMCUhAgULyg'];
+var callnumber = 0;
+var indexArrayVideos = 0;
 
 const app = express();
+
 app.use(cors({ origin: true }));
 
-app.get('/',(req,res)=>{
+//START test routes----------------------------------------------------------//
+app.get('/', (req, res) => {
     res.send("Welcome to Junngle");
 });
 
@@ -30,8 +42,56 @@ app.get('/helloworld', (req, res) => {
     res.send("hello");
 });
 
-exports.api = functions.https.onRequest(app);
-
-exports.helloworld = functions.https.onRequest((req,res)=>{
-    res.send("hello priya ");
+app.get('/clearDB', (req, res) => {
+    database.ref("/videos").set(":)").then(function () {
+        console.log("db cleared");
+    });
+    res.status(200).write("done");
 });
+//END test routes-----------------------------------------------------------//
+
+//START test routes---------------------------------------------------------//
+app.get('/listvideo', (req, res) => {
+    playlistitemTHING.processRequest(function again(err, data, token) {
+        if (err)
+            res.status(200).write("error");
+        else {
+            if (indexArrayVideos < ArrayChannelVideos.length) {
+                database.ref("/videos/packet" + callnumber).set(data).then(() => {
+                    console.log("datapacket written packet number :" + callnumber);
+                }
+                );
+                callnumber++;
+                if (token != null || token != undefined) {
+                    playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
+                } else {
+                    token = null;
+                    indexArrayVideos++;
+                    console.log("Next video :" + indexArrayVideos);
+                    if (indexArrayVideos < ArrayChannelVideos.length)
+                        playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
+                    else {
+                        console.log("done da u chill now");
+                        res.status(200).write("DOOONNEEEE")
+                    }
+                }
+            } else {
+                console.log("DONNNNNEEE BOI")
+                res.status(200).write("Completed writing");
+            }
+        }
+        res.status(200).write("done");
+    }, null, ArrayChannelVideos[indexArrayVideos]);
+});
+//END test routes---------------------------------------------------------//
+
+
+app.listen(3000, () => {
+    console.log("Api up and running");
+});
+
+// exports.api = functions.https.onRequest(app);
+
+// exports.helloworld = functions.https.onRequest((req,res)=>{
+//     res.send("hello priya ");
+// });
