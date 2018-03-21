@@ -199,7 +199,7 @@ var processRequest = function (callback) {
     });
 
     function GetvideosProcess_js(playlistid, title, callback) {
-        console.log(title, "from example.js");
+        console.log("processing : ",title ,playlistid);
         processs.getVideos(playlistid, callback, title);
     }
 }

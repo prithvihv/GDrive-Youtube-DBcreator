@@ -21,11 +21,13 @@ firebase.initializeApp(config);
 var database = firebase.database();
 //admin.initializeApp(functions.config().firebase);
 //routes
-//var playlist = require("../routes/playlist");
+var playlist = require("../routes/playlist");
 var playlistitemTHING = require('../routes/playlistitemTHING');
+var proccess = require("../routes/process");
 
 //random variables
 var ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw', 'UUrsXeU6cuGStvMCUhAgULyg'];
+var ArrayPlaylist = ['UCrsXeU6cuGStvMCUhAgULyg' , 'UCNmRmSpIJYqu7ttPLWLx2sw'];
 var callnumber = 0;
 var indexArrayVideos = 0;
 
@@ -50,7 +52,7 @@ app.get('/clearDB', (req, res) => {
 });
 //END test routes-----------------------------------------------------------//
 
-//START test routes---------------------------------------------------------//
+//START Videos routes---------------------------------------------------------//
 app.get('/listvideo', (req, res) => {
     playlistitemTHING.processRequest(function again(err, data, token) {
         if (err)
@@ -83,7 +85,40 @@ app.get('/listvideo', (req, res) => {
         res.status(200).write("done");
     }, null, ArrayChannelVideos[indexArrayVideos]);
 });
-//END test routes---------------------------------------------------------//
+//END Videos routes---------------------------------------------------------//
+
+
+//START PlaylistsAndVideos routes---------------------------------------------------------//
+app.get("/playlist", (req, res) => {
+    playlist.processRequest(function again(err, data) {
+        if (err)
+            res.status(200).write("error");
+        else {
+            if (indexArrayVideos < ArrayChannelVideos.length) {
+                database.ref("/playlists/" + data['title'] + "/packet" + callnumber).set(data);
+                callnumber++;
+                if (data['nextPageToken'] != null || data['nextPageToken'] != undefined) {
+                    proccess.getVideos(data['playlistid'], again, data['title']);
+                } else {
+                    callnumber=0;
+                    console.log("OR");
+                    res.status(200).write("Completed writing");
+                    //indexArrayVideos++;
+                    // if (indexArrayVideos < ArrayChannelVideos.length)
+                    //     playlist.processRequest(again);
+                    // else {
+                    //     console.log("done da u chill now");
+                    //     res.status(200).write("DOOONNEEEE")
+                    // }
+                }
+            } else {
+                res.status(200).write("Completed writing");
+            }
+        }
+    });
+    res.status(200).write("done");
+});
+//END PlaylistsAndVideos routes---------------------------------------------------------//
 
 
 app.listen(3000, () => {

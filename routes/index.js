@@ -55,8 +55,6 @@ app.get("/", (req, res) => {
     else {
       if (data) {
         etag = data['title'];
-        // console.log(etag,"from index.js printing title");
-        // pushingkey = database.ref("/" + etag).set(data);
         pushingkey = database.ref("/playlists/" + etag).set(data).then(res.status(200).write("done"));
       } else {
         console.log("null ");
