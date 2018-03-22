@@ -90,9 +90,9 @@ app.get('/listvideo', (req, res) => {
 
 //START PlaylistsAndVideos routes---------------------------------------------------------//
 app.get("/playlist", (req, res) => {
-    playlist.processRequest(function again(err, data ,call) {
-        if(call==null||call==undefined){
-            call =0;
+    playlist.processRequest(function again(err, data, call) {
+        if (call == null || call == undefined) {
+            call = 0;
             console.log("undffffined call")
         }
         if (err)
@@ -101,21 +101,21 @@ app.get("/playlist", (req, res) => {
             database.ref("/playlists/" + data['title'] + "/packet" + call).set(data);
             if (data['nextPageToken'] != null || data['nextPageToken'] != undefined) {
                 console.log("getting more videos");
-                call = call+1;
-                proccess.getVideos(data['playlistid'], again, data['title'] ,data['nextPageToken'],call);
+                call = call + 1;
+                proccess.getVideos(data['playlistid'], again, data['title'], data['nextPageToken'], call);
             } else {
                 console.log("OR");
                 res.status(200).write("Completed writing");
-                //indexArrayVideos++;
-                // if (indexArrayVideos < ArrayChannelVideos.length)
-                //     playlist.processRequest(again);
-                // else {
-                //     console.log("done da u chill now");
-                //     res.status(200).write("DOOONNEEEE")
-                // }
+                indexArrayVideos++;
+                if (indexArrayVideos < ArrayPlaylist.length)
+                    playlist.processRequest(again,ArrayPlaylist[indexArrayVideos]);
+                else {
+                    console.log("done da u chill now");
+                    res.status(200).write("DOOONNEEEE")
+                }
             }
         }
-    });
+    }, ArrayPlaylist[0]);
     res.status(200).write("done");
 });
 //END PlaylistsAndVideos routes---------------------------------------------------------//
@@ -124,9 +124,3 @@ app.get("/playlist", (req, res) => {
 app.listen(3000, () => {
     console.log("Api up and running");
 });
-
-// exports.api = functions.https.onRequest(app);
-
-// exports.helloworld = functions.https.onRequest((req,res)=>{
-//     res.send("hello priya ");
-// });

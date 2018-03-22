@@ -15,11 +15,11 @@ var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 var param = {
     'params': {
         'maxResults': '50',
-        'part': 'snippet',
+        'part': 'snippet,contentDetails',
     }
 };
 
-var processRequest = function (callbackIndex, token , playlistChannel) {
+var processRequest = function (callbackIndex, token, playlistChannel) {
     // console.log("process called");
     // console.log(token);
     // Load client secrets from a local file.
@@ -29,12 +29,12 @@ var processRequest = function (callbackIndex, token , playlistChannel) {
             return;
         }
         param.params.playlistId = playlistChannel;
-        if(token){
-            param.params.pageToken = token;    
+        if (token) {
+            param.params.pageToken = token;
         }
         // Authorize a client with the loaded credentials, then call the YouTube API.
         //See full code sample for authorize() function code.
-        authorize(JSON.parse(content), param, playlistItemsListByPlaylistId ,callbackIndex);
+        authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callbackIndex);
 
     });
 
@@ -45,7 +45,7 @@ var processRequest = function (callbackIndex, token , playlistChannel) {
      * @param {Object} credentials The authorization client credentials.
      * @param {function} callback The callback to call with the authorized client.
      */
-    function authorize(credentials, requestData, callback , callbackIndex) {
+    function authorize(credentials, requestData, callback, callbackIndex) {
         var clientSecret = credentials.installed.client_secret;
         var clientId = credentials.installed.client_id;
         var redirectUrl = credentials.installed.redirect_uris[0];
@@ -58,7 +58,7 @@ var processRequest = function (callbackIndex, token , playlistChannel) {
                 getNewToken(oauth2Client, requestData, callback);
             } else {
                 oauth2Client.credentials = JSON.parse(token);
-                callback(oauth2Client, requestData , callbackIndex);
+                callback(oauth2Client, requestData, callbackIndex);
             }
         });
     }
@@ -91,7 +91,7 @@ function getNewToken(oauth2Client, requestData, callback) {
             }
             oauth2Client.credentials = token;
             storeToken(token);
-            callback(oauth2Client, requestData , callbackIndex);
+            callback(oauth2Client, requestData, callbackIndex);
         });
     });
 }
@@ -170,7 +170,7 @@ function createResource(properties) {
 }
 
 
-function playlistItemsListByPlaylistId(auth, requestData ,callbackIndex) {
+function playlistItemsListByPlaylistId(auth, requestData, callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
@@ -181,8 +181,7 @@ function playlistItemsListByPlaylistId(auth, requestData ,callbackIndex) {
         }
         //console.log(response);
         //console.log("got response re routing");
-        console.log(response['nextPageToken']);
-        callbackIndex(false, response , response['nextPageToken']);
+        callbackIndex(false, response, response['nextPageToken']);
     });
 }
 
