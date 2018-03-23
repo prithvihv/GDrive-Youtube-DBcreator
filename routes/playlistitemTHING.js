@@ -15,7 +15,7 @@ var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 var param = {
     'params': {
         'maxResults': '50',
-        'part': 'snippet,contentDetails',
+        'part': 'snippet',
     }
 };
 

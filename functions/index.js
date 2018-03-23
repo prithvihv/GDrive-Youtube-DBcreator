@@ -2,21 +2,12 @@
 let express = require("express");
 const cors = require("cors");
 //firebase
-const firebase = require("firebase");
-let config = {
-    apiKey: "AIzaSyAufTAIIp28e8nJL_Ek1DeDxuCEJKJHKI4",
-    authDomain: "ajapp-192505.firebaseapp.com",
-    databaseURL: "https://ajapp-192505.firebaseio.com",
-    projectId: "ajapp-192505",
-    storageBucket: "ajapp-192505.appspot.com",
-    messagingSenderId: "512241350585"
-};
+
 //const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-
-//more firebase
-
-firebase.initializeApp(config);
+const config = require('../Config/firebaseDb');
+const firebase = require('firebase');
+firebase.initializeApp(config.FbConfig);
 let database = firebase.database();
 //admin.initializeApp(functions.config().firebase);
 
@@ -29,6 +20,7 @@ let videoTime = require("../routes/videoT");
 //random letiables
 const ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw', 'UUrsXeU6cuGStvMCUhAgULyg'];
 let ArrayPlaylist = ['UCrsXeU6cuGStvMCUhAgULyg', 'UCNmRmSpIJYqu7ttPLWLx2sw'];
+let ArrayVideos = [];
 let callnumber = 0;
 let indexArrayVideos = 0;
 
@@ -122,7 +114,19 @@ app.get("/playlist", (req, res) => {
 
 //START VideosTimeQuerying routes---------------------------------------------------------//
 app.get('/videoT', (req, res) => {
-    console.log(videoTime.getVid());
+    //first make list of data
+    database.ref("/videos").once('value').then(function (packets) {
+        packets.forEach(packet=>{
+            packet.child('items').forEach(videoitem=>{
+                ArrayVideos.push(videoitem.child('snippet').child('resourceId').child('videoId').val());
+            });
+        });
+    }).then(()=>{
+        console.log('done');
+        console.log(ArrayVideos);
+        res.send(ArrayVideos);
+    });
+    //res.status(200).write("done");
 });
 //END VideosTimeQuerying routes---------------------------------------------------------//
 

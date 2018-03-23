@@ -11,7 +11,7 @@ let TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 // Load client secrets from a local file.
 let param = {
     'params': {
-        // 'id': 'Ks-_Mh1QhMc',
+        'id': 'fUpdBdwMy3M',
         'part': 'contentDetails'
     }
 };
@@ -21,20 +21,11 @@ let GetVideoTime = function (callbackIndex , list_IDvideos) {
             console.log('Error loading client secret file: ' + err);
             return;
         }
-        param.params.id = list_IDvideos;
-        // Authorize a client with the loaded credentials, then call the YouTube API.
-        //See full code sample for authorize() function code.
-        authorize(JSON.parse(content) , param , videosListById);
+        //param.params.id = list_IDvideos;
+        authorize(JSON.parse(content) , param , videosListById ,callbackIndex);
     });
 };
 
-/**
- * Create an OAuth2 client with the given credentials, and then execute the
- * given callback function.
- *
- * @param {Object} credentials The authorization client credentials.
- * @param {function} callback The callback to call with the authorized client.
- */
 function authorize(credentials, requestData, callback) {
     let clientSecret = credentials.installed.client_secret;
     let clientId = credentials.installed.client_id;
@@ -52,7 +43,6 @@ function authorize(credentials, requestData, callback) {
         }
     });
 }
-
 function getNewToken(oauth2Client, requestData, callback) {
     let authUrl = oauth2Client.generateAuthUrl({
         access_type: 'offline',
@@ -76,12 +66,6 @@ function getNewToken(oauth2Client, requestData, callback) {
         });
     });
 }
-
-/**
- * Store token to disk be used in later program executions.
- *
- * @param {Object} token The token to store to disk.
- */
 function storeToken(token) {
     try {
         fs.mkdirSync(TOKEN_DIR);
@@ -93,14 +77,6 @@ function storeToken(token) {
     fs.writeFile(TOKEN_PATH, JSON.stringify(token));
     console.log('Token stored to ' + TOKEN_PATH);
 }
-
-/**
- * Remove parameters that do not have values.
- *
- * @param {Object} params A list of key-value pairs representing request
- *                        parameters and their values.
- * @return {Object} The params object minus parameters with no values set.
- */
 function removeEmptyParameters(params) {
     for (let p in params) {
         if (!params[p] || params[p] === undefined) {
@@ -139,8 +115,6 @@ function createResource(properties) {
     }
     return resource;
 }
-
-
 function videosListById(auth, requestData) {
     let service = google.youtube('v3');
     let parameters = removeEmptyParameters(requestData['params']);
