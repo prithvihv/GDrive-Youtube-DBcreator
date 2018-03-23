@@ -21,10 +21,6 @@ urlParser = require('js-video-url-parser');
 
 var fs = require('fs');
 
-// Load client secrets from a local file.
-// Load client secrets from a local file.
-
-
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
@@ -109,7 +105,7 @@ function storeToken(token) {
  */
 function removeEmptyParameters(params) {
     for (var p in params) {
-        if (!params[p] || params[p] == 'undefined') {
+        if (!params[p] || params[p] === 'undefined') {
             delete params[p];
         }
     }
@@ -205,7 +201,7 @@ var processRequest = function (callback , ChannelIID) {
         processs.getVideos(playlistid, callback, title,null ,0);
         //getVideos(playlistIDNODE, callback1, title, token, call)
     }
-}
+};
 module.exports = {
     processRequest: processRequest
 };

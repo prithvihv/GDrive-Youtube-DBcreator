@@ -1,10 +1,9 @@
 //Node stuff
-var express = require("express");
-const cors = require("cors")
-
+let express = require("express");
+const cors = require("cors");
 //firebase
 const firebase = require("firebase");
-var config = {
+let config = {
     apiKey: "AIzaSyAufTAIIp28e8nJL_Ek1DeDxuCEJKJHKI4",
     authDomain: "ajapp-192505.firebaseapp.com",
     databaseURL: "https://ajapp-192505.firebaseio.com",
@@ -18,38 +17,41 @@ const admin = require('firebase-admin');
 //more firebase
 
 firebase.initializeApp(config);
-var database = firebase.database();
+let database = firebase.database();
 //admin.initializeApp(functions.config().firebase);
-//routes
-var playlist = require("../routes/playlist");
-var playlistitemTHING = require('../routes/playlistitemTHING');
-var proccess = require("../routes/process");
 
-//random variables
-var ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw', 'UUrsXeU6cuGStvMCUhAgULyg'];
-var ArrayPlaylist = ['UCrsXeU6cuGStvMCUhAgULyg', 'UCNmRmSpIJYqu7ttPLWLx2sw'];
-var callnumber = 0;
-var indexArrayVideos = 0;
+//routes
+let playlist = require("../routes/playlist");
+let playlistitemTHING = require('../routes/playlistitemTHING');
+let proccess = require("../routes/process");
+let videoTime = require("../routes/videoT");
+
+//random letiables
+const ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw', 'UUrsXeU6cuGStvMCUhAgULyg'];
+let ArrayPlaylist = ['UCrsXeU6cuGStvMCUhAgULyg', 'UCNmRmSpIJYqu7ttPLWLx2sw'];
+let callnumber = 0;
+let indexArrayVideos = 0;
 
 const app = express();
 
 app.use(cors({ origin: true }));
 
 //START test routes----------------------------------------------------------//
-app.get('/', (req, res) => {
-    res.send("Welcome to Junngle");
-});
-
-app.get('/helloworld', (req, res) => {
-    res.send("hello");
-});
-
-app.get('/clearDB', (req, res) => {
-    database.ref("/videos").set(":)").then(function () {
-        console.log("db cleared");
+{
+    app.get('/', (req, res) => {
+        res.send("Welcome to Jungle");
     });
-    res.status(200).write("done");
-});
+    app.get('/helloworld', (req, res) => {
+        res.send("hello");
+    });
+
+    app.get('/clearDB', (req, res) => {
+        database.ref("/videos").set(":)").then(function () {
+            console.log("db cleared");
+        });
+        res.status(200).write("done");
+    });
+}
 //END test routes-----------------------------------------------------------//
 
 //START Videos routes---------------------------------------------------------//
@@ -61,10 +63,9 @@ app.get('/listvideo', (req, res) => {
             if (indexArrayVideos < ArrayChannelVideos.length) {
                 database.ref("/videos/packet" + callnumber).set(data).then(() => {
                     console.log("datapacket written packet number :" + callnumber);
-                }
-                );
+                });
                 callnumber++;
-                if (token != null || token != undefined) {
+                if (token != null || token !== undefined) {
                     playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
                 } else {
                     token = null;
@@ -74,11 +75,11 @@ app.get('/listvideo', (req, res) => {
                         playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
                     else {
                         console.log("done da u chill now");
-                        res.status(200).write("DOOONNEEEE")
+                        res.status(200).write("DONE");
                     }
                 }
             } else {
-                console.log("DONNNNNEEE BOI")
+                console.log("DONE BOI");
                 res.status(200).write("Completed writing");
             }
         }
@@ -87,19 +88,18 @@ app.get('/listvideo', (req, res) => {
 });
 //END Videos routes---------------------------------------------------------//
 
-
 //START PlaylistsAndVideos routes---------------------------------------------------------//
 app.get("/playlist", (req, res) => {
     playlist.processRequest(function again(err, data, call) {
-        if (call == null || call == undefined) {
+        if (call == null || call === undefined) {
             call = 0;
-            console.log("undffffined call")
+            console.log("undefined call")
         }
         if (err)
             res.status(200).write("error");
         else {
             database.ref("/playlists/" + data['title'] + "/packet" + call).set(data);
-            if (data['nextPageToken'] != null || data['nextPageToken'] != undefined) {
+            if (data['nextPageToken'] != null || data['nextPageToken'] !== undefined) {
                 console.log("getting more videos");
                 call = call + 1;
                 proccess.getVideos(data['playlistid'], again, data['title'], data['nextPageToken'], call);
@@ -108,10 +108,10 @@ app.get("/playlist", (req, res) => {
                 res.status(200).write("Completed writing");
                 indexArrayVideos++;
                 if (indexArrayVideos < ArrayPlaylist.length)
-                    playlist.processRequest(again,ArrayPlaylist[indexArrayVideos]);
+                    playlist.processRequest(again, ArrayPlaylist[indexArrayVideos]);
                 else {
                     console.log("done da u chill now");
-                    res.status(200).write("DOOONNEEEE")
+                    res.status(200).write("DONE")
                 }
             }
         }
@@ -120,6 +120,11 @@ app.get("/playlist", (req, res) => {
 });
 //END PlaylistsAndVideos routes---------------------------------------------------------//
 
+//START VideosTimeQuerying routes---------------------------------------------------------//
+app.get('/videoT', (req, res) => {
+    console.log(videoTime.getVid());
+});
+//END VideosTimeQuerying routes---------------------------------------------------------//
 
 app.listen(3000, () => {
     console.log("Api up and running");
