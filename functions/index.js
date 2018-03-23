@@ -38,7 +38,7 @@ app.use(cors({ origin: true }));
     });
 
     app.get('/clearDB', (req, res) => {
-        database.ref("/videos").set(":)").then(function () {
+        database.ref("/").set(":)").then(function () {
             console.log("db cleared");
         });
         res.status(200).write("done");
@@ -122,11 +122,15 @@ app.get('/videoT', (req, res) => {
             });
         });
     }).then(()=>{
-        console.log('done');
-        console.log(ArrayVideos);
-        res.send(ArrayVideos);
+        videoTime.getVid(function (data) {
+            data["items"].forEach((item)=>{
+                database.ref("/timeV/" + item['id']).set(item["contentDetails"]["duration"]).then(()=>{
+                    console.log("done writing times");
+                });
+            });
+        },ArrayVideos);
+        res.status(200).send("Updating database");
     });
-    //res.status(200).write("done");
 });
 //END VideosTimeQuerying routes---------------------------------------------------------//
 

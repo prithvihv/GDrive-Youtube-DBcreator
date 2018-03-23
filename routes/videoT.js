@@ -1,55 +1,70 @@
 
-let fs = require('fs');
-let readline = require('readline');
-let google = require('googleapis');
-let googleAuth = require('google-auth-library');
-let SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
-let TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
+var fs = require('fs');
+var readline = require('readline');
+var google = require('googleapis');
+var googleAuth = require('google-auth-library');
+var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
+var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
-let TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
+var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 
 // Load client secrets from a local file.
-let param = {
+var param = {
     'params': {
-        'id': 'fUpdBdwMy3M',
+        // 'id': 'fUpdBdwMy3M',
         'part': 'contentDetails'
     }
 };
-let GetVideoTime = function (callbackIndex , list_IDvideos) {
+var list_IDvideos;
+var GetVideoTime = function (callbackIndex , listIDvideos ) {
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
         if (err) {
             console.log('Error loading client secret file: ' + err);
             return;
         }
-        //param.params.id = list_IDvideos;
+        list_IDvideos=listIDvideos;
+
         authorize(JSON.parse(content) , param , videosListById ,callbackIndex);
     });
 };
 
-function authorize(credentials, requestData, callback) {
-    let clientSecret = credentials.installed.client_secret;
-    let clientId = credentials.installed.client_id;
-    let redirectUrl = credentials.installed.redirect_uris[0];
-    let auth = new googleAuth();
-    let oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+function authorize(credentials, requestData, callback ,callbackIndex) {
+    var clientSecret = credentials.installed.client_secret;
+    var clientId = credentials.installed.client_id;
+    var redirectUrl = credentials.installed.redirect_uris[0];
+    var auth = new googleAuth();
+    var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
     // Check if we have previously stored a token.
     fs.readFile(TOKEN_PATH, function (err, token) {
-        if (err) {
-            getNewToken(oauth2Client, requestData, callback);
-        } else {
-            oauth2Client.credentials = JSON.parse(token);
-            callback(oauth2Client, requestData);
+        if(list_IDvideos.length>50){
+            while(list_IDvideos.length) {
+                requestData.params.id =  (list_IDvideos.splice(0,50) ).toString();
+                if (err) {
+                    getNewToken(oauth2Client, requestData, callback);
+                } else {
+                    oauth2Client.credentials = JSON.parse(token);
+                    callback(oauth2Client, requestData ,callbackIndex);
+                }
+            }
+        }else{
+            requestData.params.id = list_IDvideos;
+            if (err) {
+                getNewToken(oauth2Client, requestData, callback);
+            } else {
+                oauth2Client.credentials = JSON.parse(token);
+                callback(oauth2Client, requestData ,callbackIndex);
+            }
         }
     });
 }
-function getNewToken(oauth2Client, requestData, callback) {
-    let authUrl = oauth2Client.generateAuthUrl({
+function getNewToken(oauth2Client, requestData, callback,callbackIndex) {
+    var authUrl = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES
     });
     console.log('Authorize this app by visiting this url: ', authUrl);
-    let rl = readline.createInterface({
+    var rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
     });
@@ -62,7 +77,7 @@ function getNewToken(oauth2Client, requestData, callback) {
             }
             oauth2Client.credentials = token;
             storeToken(token);
-            callback(oauth2Client, requestData);
+            callback(oauth2Client, requestData,callbackIndex);
         });
     });
 }
@@ -78,7 +93,7 @@ function storeToken(token) {
     console.log('Token stored to ' + TOKEN_PATH);
 }
 function removeEmptyParameters(params) {
-    for (let p in params) {
+    for (var p in params) {
         if (!params[p] || params[p] === undefined) {
             delete params[p];
         }
@@ -86,25 +101,25 @@ function removeEmptyParameters(params) {
     return params;
 }
 function createResource(properties) {
-    let resource = {};
-    let normalizedProps = properties;
-    for (let p in properties) {
-        let value = properties[p];
+    var resource = {};
+    var normalizedProps = properties;
+    for (var p in properties) {
+        var value = properties[p];
         if (p && p.substr(-2, 2) == '[]') {
-            let adjustedName = p.replace('[]', '');
+            var adjustedName = p.replace('[]', '');
             if (value) {
                 normalizedProps[adjustedName] = value.split(',');
             }
             delete normalizedProps[p];
         }
     }
-    for (let p in normalizedProps) {
+    for (var p in normalizedProps) {
         // Leave properties that don't have values out of inserted resource.
         if (normalizedProps.hasOwnProperty(p) && normalizedProps[p]) {
-            let propArray = p.split('.');
-            let ref = resource;
-            for (let pa = 0; pa < propArray.length; pa++) {
-                let key = propArray[pa];
+            var propArray = p.split('.');
+            var ref = resource;
+            for (var pa = 0; pa < propArray.length; pa++) {
+                var key = propArray[pa];
                 if (pa === (propArray.length - 1)) {
                     ref[key] = normalizedProps[p];
                 } else {
@@ -115,16 +130,17 @@ function createResource(properties) {
     }
     return resource;
 }
-function videosListById(auth, requestData) {
-    let service = google.youtube('v3');
-    let parameters = removeEmptyParameters(requestData['params']);
+function videosListById(auth, requestData ,callbackIndex) {
+    var service = google.youtube('v3');
+    var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
     service.videos.list(parameters, function (err, response) {
         if (err) {
             console.log('The API returned an error: ' + err);
             return;
         }
-        console.log(response);
+        console.log("reponse recreated");
+        callbackIndex(response);
     });
 }
 
