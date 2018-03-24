@@ -3,13 +3,20 @@ let express = require("express");
 const cors = require("cors");
 //firebase
 
-//const functions = require('firebase-functions');
+const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const config = require('../Config/firebaseDb');
+let config = {
+    apiKey: "AIzaSyAufTAIIp28e8nJL_Ek1DeDxuCEJKJHKI4",
+    authDomain: "ajapp-192505.firebaseapp.com",
+    databaseURL: "https://ajapp-192505.firebaseio.com",
+    projectId: "ajapp-192505",
+    storageBucket: "ajapp-192505.appspot.com",
+    messagingSenderId: "512241350585"
+};
 const firebase = require('firebase');
-firebase.initializeApp(config.FbConfig);
+firebase.initializeApp(config);
 let database = firebase.database();
-//admin.initializeApp(functions.config().firebase);
+admin.initializeApp(functions.config().firebase);
 
 //routes
 let playlist = require("../routes/playlist");
@@ -72,10 +79,9 @@ app.get('/listvideo', (req, res) => {
                 }
             } else {
                 console.log("DONE BOI");
-                res.status(200).write("Completed writing");
             }
         }
-        res.status(200).write("done");
+        res.status(200).write("writing vidoes......");
     }, null, ArrayChannelVideos[indexArrayVideos]);
 });
 //END Videos routes---------------------------------------------------------//
@@ -107,8 +113,8 @@ app.get("/playlist", (req, res) => {
                 }
             }
         }
+        res.status(200).write("writing plalists.....");
     }, ArrayPlaylist[0]);
-    res.status(200).write("done");
 });
 //END PlaylistsAndVideos routes---------------------------------------------------------//
 
@@ -134,6 +140,12 @@ app.get('/videoT', (req, res) => {
 });
 //END VideosTimeQuerying routes---------------------------------------------------------//
 
-app.listen(3000, () => {
-    console.log("Api up and running");
+// app.listen(3000, () => {
+//     console.log("Api up and running");
+// });
+
+exports.api = functions.https.onRequest(app);
+
+exports.helloworld = functions.https.onRequest((req,res)=>{
+    res.send("hello priya ");
 });
