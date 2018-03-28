@@ -5,8 +5,7 @@ var googleAuth = require('google-auth-library');
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
-var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
-    process.env.USERPROFILE) + '/.credentials/';
+var TOKEN_DIR = "./";
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 // Get playlists
 var request = require('request');
@@ -37,6 +36,8 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
 
     // Check if we have previously stored a token.
     fs.readFile(TOKEN_PATH, function (err, token) {
+        console.log(process.env.HOME);
+        console.log("token path " + TOKEN_PATH);
         if (err) {
             getNewToken(oauth2Client, requestData, callback, callbackthisFile);
         } else {
