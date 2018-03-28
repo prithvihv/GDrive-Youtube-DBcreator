@@ -55,7 +55,7 @@ var processRequest = function (callbackIndex, token, playlistChannel) {
         // Check if we have previously stored a token.
         fs.readFile(TOKEN_PATH, function (err, token) {
             if (err) {
-                getNewToken(oauth2Client, requestData, callback);
+                getNewToken(oauth2Client, requestData, callback,callbackIndex);
             } else {
                 oauth2Client.credentials = JSON.parse(token);
                 callback(oauth2Client, requestData, callbackIndex);
@@ -72,7 +72,7 @@ var processRequest = function (callbackIndex, token, playlistChannel) {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken(oauth2Client, requestData, callback) {
+function getNewToken(oauth2Client, requestData, callback,callbackIndex) {
     var authUrl = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES

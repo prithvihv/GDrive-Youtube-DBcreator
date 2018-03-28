@@ -3,12 +3,11 @@ var processs = require('./process');
 var google = require('googleapis');
 var googleAuth = require('google-auth-library');
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
-
-var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = "./";
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 // Get playlists
 var request = require('request');
+var googleAuthJwt = require('google-oauth-jwt');
 var currentplaylist;
 
 
@@ -39,7 +38,7 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
         console.log(process.env.HOME);
         console.log("token path " + TOKEN_PATH);
         if (err) {
-            getNewToken(oauth2Client, requestData, callback, callbackthisFile);
+            //getNewToken(oauth2Client, requestData, callback, callbackthisFile);
         } else {
             oauth2Client.credentials = JSON.parse(token);
             callback(oauth2Client, requestData, callbackthisFile);
@@ -47,36 +46,45 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
     });
 }
 
-/**
- * Get and store new token after prompting for user authorization, and then
- * execute the given callback with the authorized OAuth2 client.
- *
- * @param {google.auth.OAuth2} oauth2Client The OAuth2 client to get token for.
- * @param {getEventsCallback} callback The callback to call with the authorized
- *     client.
- */
 function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
-    var authUrl = oauth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: SCOPES
-    });
-    console.log('Authorize this app by visiting this url: ', authUrl);
-    var rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    rl.question('Enter the code from that page here: ', function (code) {
-        rl.close();
-        oauth2Client.getToken(code, function (err, token) {
-            if (err) {
-                console.log('Error while trying to retrieve access token', err);
-                return;
-            }
-            oauth2Client.credentials = token;
-            storeToken(token);
-            callback(oauth2Client, requestData, callbackthisFile);
-        });
-    });
+    // var authUrl = oauth2Client.generateAuthUrl({
+    //     access_type: 'offline',
+    //     scope: SCOPES
+    // });
+    // console.log('Authorize this app by visiting this url: ', authUrl);
+    // var rl = readline.createInterface({
+    //     input: process.stdin,
+    //     output: process.stdout
+    // });
+    // rl.question('Enter the code from that page here: ', function (code) {
+    //     rl.close();
+    //     oauth2Client.getToken(code, function (err, token) {
+    //         if (err) {
+    //             console.log('Error while trying to retrieve access token', err);
+    //             return;
+    //         }
+    //         oauth2Client.credentials = token;
+    //         storeToken(token);
+    //         callback(oauth2Client, requestData, callbackthisFile);
+    //     });
+    // });
+    googleAuthJwt.authenticate({
+        // use the email address of the service account, as seen in the API console 
+        email: 'nodeserver@ajapp-192505.iam.gserviceaccount.com',
+        // use the PEM file we generated from the downloaded key 
+        keyFile: 'your-key-file.pem',
+        // specify the scopes you wish to access 
+        scopes: SCOPES
+      }, function (err, token) {
+        //console.log(token);
+        if(err){
+            console.log('Error while trying to retrieve access token', err);
+            return;
+        }
+        oauth2Client.credentials = token;
+        storeToken(token);
+        callback(oauth2Client, requestData, callbackthisFile);
+      });
 }
 
 /**
