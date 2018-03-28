@@ -19,10 +19,10 @@ let database = firebase.database();
 //admin.initializeApp(functions.config().firebase);
 
 //routes
-let playlist = require("../routes/playlist");
-let playlistitemTHING = require('../routes/playlistitemTHING');
-let proccess = require("../routes/process");
-let videoTime = require("../routes/videoT");
+let playlist = require("./routes/playlist");
+let playlistitemTHING = require('./routes/playlistitemTHING');
+let proccess = require("./routes/process");
+let videoTime = require("./routes/videoT");
 
 //random letiables
 const ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw', 'UUrsXeU6cuGStvMCUhAgULyg'];
@@ -140,9 +140,10 @@ app.get('/videoT', (req, res) => {
 });
 //END VideosTimeQuerying routes---------------------------------------------------------//
 
-app.listen(3000, () => {
-    console.log("Api up and running");
-});
+// app.listen(3000, () => {
+//     console.log("Api up and running");
+// });
+app.listen(process.env.PORT);
 
 // exports.api = functions.https.onRequest(app);
 //
