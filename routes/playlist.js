@@ -16,7 +16,6 @@ var currentplaylist;
 var google = require('googleapis');
 var googleAuth = require('google-auth-library');
 //const isPlaylist = require("is-playlist");
-urlParser = require('js-video-url-parser');
 
 
 var fs = require('fs');
