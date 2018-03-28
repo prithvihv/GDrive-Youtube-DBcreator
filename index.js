@@ -140,10 +140,9 @@ app.get('/videoT', (req, res) => {
 });
 //END VideosTimeQuerying routes---------------------------------------------------------//
 
-// app.listen(3000, () => {
-//     console.log("Api up and running");
-// });
-app.listen(process.env.PORT);
+app.listen(process.env.PORT ||3000, () => {
+    console.log("Api up and running");
+});
 
 // exports.api = functions.https.onRequest(app);
 //
