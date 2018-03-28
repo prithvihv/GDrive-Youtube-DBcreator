@@ -171,7 +171,7 @@ var param = {
         'maxResults': '50',
         'part': 'snippet,contentDetails'
     }
-}
+};
 
 var processRequest = function (callback , ChannelIID) {
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
