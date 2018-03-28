@@ -38,7 +38,7 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
         console.log(process.env.HOME);
         console.log("token path " + TOKEN_PATH);
         if (err) {
-            //getNewToken(oauth2Client, requestData, callback, callbackthisFile);
+            getNewToken(oauth2Client, requestData, callback, callbackthisFile);
         } else {
             oauth2Client.credentials = JSON.parse(token);
             callback(oauth2Client, requestData, callbackthisFile);
