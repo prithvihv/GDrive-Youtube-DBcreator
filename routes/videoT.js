@@ -41,7 +41,7 @@ function authorize(credentials, requestData, callback ,callbackIndex) {
             while(list_IDvideos.length) {
                 requestData.params.id =  (list_IDvideos.splice(0,50) ).toString();
                 if (err) {
-                    getNewToken(oauth2Client, requestData, callback);
+                    getNewToken(oauth2Client, requestData, callback,callbackIndex);
                 } else {
                     oauth2Client.credentials = JSON.parse(token);
                     callback(oauth2Client, requestData ,callbackIndex);
@@ -50,7 +50,7 @@ function authorize(credentials, requestData, callback ,callbackIndex) {
         }else{
             requestData.params.id = list_IDvideos;
             if (err) {
-                getNewToken(oauth2Client, requestData, callback);
+                getNewToken(oauth2Client, requestData, callback,callbackIndex);
             } else {
                 oauth2Client.credentials = JSON.parse(token);
                 callback(oauth2Client, requestData ,callbackIndex);

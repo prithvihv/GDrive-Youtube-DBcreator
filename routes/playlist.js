@@ -7,7 +7,16 @@ var TOKEN_DIR = "./";
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 // Get playlists
 var request = require('request');
-var googleAuthJwt = require('google-oauth-jwt');
+//var googleAuthJwt = require('google-oauth-jwt');
+var key = require('../AJapp-55843faea217.json');
+var jwtClient = new google.auth.JWT(
+    key.client_email,
+    null,
+    key.private_key,
+    SCOPES, // an array of auth scopes
+    null
+);
+
 var currentplaylist;
 
 
@@ -32,11 +41,11 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
     var redirectUrl = credentials.installed.redirect_uris[0];
     var auth = new googleAuth();
     var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+    getNewToken(oauth2Client, requestData, callback, callbackthisFile);
 
     // Check if we have previously stored a token.
     fs.readFile(TOKEN_PATH, function (err, token) {
-        console.log(process.env.HOME);
-        console.log("token path " + TOKEN_PATH);
+
         if (err) {
             getNewToken(oauth2Client, requestData, callback, callbackthisFile);
         } else {
@@ -51,12 +60,12 @@ function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
     //     access_type: 'offline',
     //     scope: SCOPES
     // });
-    // console.log('Authorize this app by visiting this url: ', authUrl);
+    // console.log('Authorize this app by visiting this url: ' , authUrl);
     // var rl = readline.createInterface({
     //     input: process.stdin,
     //     output: process.stdout
     // });
-    // rl.question('Enter the code from that page here: ', function (code) {
+    // rl.question('Enterprocessing the code from that page here: ', function (code) {
     //     rl.close();
     //     oauth2Client.getToken(code, function (err, token) {
     //         if (err) {
@@ -68,23 +77,36 @@ function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
     //         callback(oauth2Client, requestData, callbackthisFile);
     //     });
     // });
-    googleAuthJwt.authenticate({
-        // use the email address of the service account, as seen in the API console 
-        email: 'nodeserver@ajapp-192505.iam.gserviceaccount.com',
-        // use the PEM file we generated from the downloaded key 
-        keyFile: 'your-key-file.pem',
-        // specify the scopes you wish to access 
-        scopes: SCOPES
-      }, function (err, token) {
-        //console.log(token);
-        if(err){
-            console.log('Error while trying to retrieve access token', err);
+
+
+    jwtClient.authorize(function (err, tokens) {
+        if (err) {
+            console.log(err);
             return;
         }
-        oauth2Client.credentials = token;
-        storeToken(token);
+        console.log(tokens);
+        oauth2Client.credentials = tokens;
+        storeToken(tokens);
         callback(oauth2Client, requestData, callbackthisFile);
-      });
+    });
+    // googleAuthJwt.authenticate({
+    //     // use the email address of the service account, as seen in the API console 
+    //     email: 'nodeserver@ajapp-192505.iam.gserviceaccount.com',
+    //     // use the PEM file we generated from the downloaded key 
+    //     keyFile: 'your-key-file.pem',
+    //     // specify the scopes you wish to access 
+    //     scopes: SCOPES
+    //   }, function (err, token) {
+    //     console.log(token);
+    //     console.log("JWT")
+    //     if(err){
+    //         console.log('Error while trying to retrieve access token', err);
+    //         return;
+    //     }
+    //     oauth2Client.credentials = token;
+    //     storeToken(token);
+    //     callback(oauth2Client, requestData, callbackthisFile);
+    //   });
 }
 
 /**
@@ -167,6 +189,7 @@ function playlistsListByChannelId(auth, requestData, callbackthisFile) {
     parameters['auth'] = auth;
     service.playlists.list(parameters, function (err, response) {
         if (err) {
+            console.log("before err");
             console.log('The API returned an error: ' + err);
             return;
         }
@@ -181,7 +204,7 @@ var param = {
     }
 };
 
-var processRequest = function (callback , ChannelIID) {
+var processRequest = function (callback, ChannelIID) {
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
         if (err) {
             console.log('Error loading client secret file: ' + err);
@@ -193,9 +216,9 @@ var processRequest = function (callback , ChannelIID) {
         //             //UCNmRmSpIJYqu7ttPLWLx2sw atmajyothisatsang UUNmRmSpIJYqu7ttPLWLx2sw
         //             //UCrsXeU6cuGStvMCUhAgULyg Light of the Self Foundation UUrsXeU6cuGStvMCUhAgULyg
         //UCjXfkj5iapKHJrhYfAF9ZGg
-        console.log("ChannelID : " ,ChannelIID ," next one ?" );
+        console.log("ChannelID : ", ChannelIID, " next one ?");
         param.params.channelId = ChannelIID;
-        authorize(JSON.parse(content),param , playlistsListByChannelId, function (ArrayYoutubePlaylist) {
+        authorize(JSON.parse(content), param, playlistsListByChannelId, function (ArrayYoutubePlaylist) {
             ArrayYoutubePlaylist.items.forEach(element => {
                 //pass this value and write it to the dp 
                 GetvideosProcess_js(element.id, element.snippet.title, callback)
@@ -205,8 +228,8 @@ var processRequest = function (callback , ChannelIID) {
     });
 
     function GetvideosProcess_js(playlistid, title, callback) {
-        console.log("processing : ",title ,playlistid);
-        processs.getVideos(playlistid, callback, title,null ,0);
+        console.log("processing : ", title, playlistid);
+        processs.getVideos(playlistid, callback, title, null, 0);
         //getVideos(playlistIDNODE, callback1, title, token, call)
     }
 };
