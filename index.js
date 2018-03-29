@@ -4,7 +4,6 @@ const cors = require("cors");
 //firebase
 
 const functions = require('firebase-functions');
-const admin = require('firebase-admin');
 let config = {
     apiKey: "AIzaSyAufTAIIp28e8nJL_Ek1DeDxuCEJKJHKI4",
     authDomain: "ajapp-192505.firebaseapp.com",
@@ -16,13 +15,12 @@ let config = {
 const firebase = require('firebase');
 firebase.initializeApp(config);
 let database = firebase.database();
-admin.initializeApp(functions.config().firebase);
 
 //routes
-let playlist = require("../routes/playlist");
-let playlistitemTHING = require('../routes/playlistitemTHING');
-let proccess = require("../routes/process");
-let videoTime = require("../routes/videoT");
+let playlist = require("./routes/playlist");
+let playlistitemTHING = require('./routes/playlistitemTHING');
+let proccess = require("./routes/process");
+let videoTime = require("./routes/videoT");
 
 //random letiables
 const ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw', 'UUrsXeU6cuGStvMCUhAgULyg'];
@@ -140,12 +138,7 @@ app.get('/videoT', (req, res) => {
 });
 //END VideosTimeQuerying routes---------------------------------------------------------//
 
-// app.listen(3000, () => {
-//     console.log("Api up and running");
-// });
-
-exports.api = functions.https.onRequest(app);
-
-exports.helloworld = functions.https.onRequest((req,res)=>{
-    res.send("hello priya ");
+app.listen(3000, () => {
+    console.log("Api up and running");
 });
+

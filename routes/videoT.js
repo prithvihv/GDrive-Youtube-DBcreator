@@ -23,7 +23,6 @@ var GetVideoTime = function (callbackIndex , listIDvideos ) {
             return;
         }
         list_IDvideos=listIDvideos;
-
         authorize(JSON.parse(content) , param , videosListById ,callbackIndex);
     });
 };
