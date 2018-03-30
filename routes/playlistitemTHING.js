@@ -9,11 +9,14 @@ var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
-const { GoogleToken } = require('gtoken');
-const gtoken = new GoogleToken({
-    keyFile: './AJapp-55843faea217.json',
-    scope: SCOPES // or space-delimited string of scopes
-  });
+var key = require('../AJapp-55843faea217.json');
+var jwtClient = new google.auth.JWT(
+    key.client_email,
+    null,
+    key.private_key,
+    SCOPES, // an array of auth scopes
+    null
+);
 
 // 'part': 'snippet,contentDetails',
 // 'playlistId': 'PLBCF2DAC6FFB574DE'
@@ -51,16 +54,16 @@ var processRequest = function (callbackIndex, token, playlistChannel) {
      * @param {function} callback The callback to call with the authorized client.
      */
     function authorize(credentials, requestData, callback, callbackIndex) {
-        var clientSecret = credentials.installed.client_secret;
-        var clientId = credentials.installed.client_id;
-        var redirectUrl = credentials.installed.redirect_uris[0];
+        var clientSecret = credentials.web.client_secret;
+        var clientId = credentials.web.client_id;
+        var redirectUrl = credentials.web.redirect_uris[0];
         var auth = new googleAuth();
         var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
- 
- //       Check if we have previously stored a token.
+
+        //       Check if we have previously stored a token.
         fs.readFile(TOKEN_PATH, function (err, token) {
             if (err) {
-                getNewToken(oauth2Client, requestData, callback,callbackIndex);
+                getNewToken(oauth2Client, requestData, callback, callbackIndex);
             } else {
                 oauth2Client.credentials = JSON.parse(token);
                 callback(oauth2Client, requestData, callbackIndex);
@@ -77,7 +80,7 @@ var processRequest = function (callbackIndex, token, playlistChannel) {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken(oauth2Client, requestData, callback,callbackIndex) {
+function getNewToken(oauth2Client, requestData, callback, callbackIndex) {
     // var authUrl = oauth2Client.generateAuthUrl({
     //     access_type: 'offline',
     //     scope: SCOPES
@@ -99,16 +102,18 @@ function getNewToken(oauth2Client, requestData, callback,callbackIndex) {
     //         callback(oauth2Client, requestData, callbackIndex);
     //     });
     // });
-    gtoken.getToken(function(err, token) {
+    
+
+    jwtClient.authorize(function (err, tokens) {
         if (err) {
-          console.log(err);
-          return;
+            console.log(err);
+            return;
         }
-        console.log(token);
-        oauth2Client.credentials = token;
-        storeToken(token);
+        console.log(tokens);
+        oauth2Client.credentials = tokens;
+        storeToken(tokens);
         callback(oauth2Client, requestData, callbackIndex);
-      });
+    });
 }
 
 /**
@@ -189,6 +194,7 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
+    console.log(parameters);
     service.playlistItems.list(parameters, function (err, response) {
         if (err) {
             console.log('The API returned an error: ' + err);

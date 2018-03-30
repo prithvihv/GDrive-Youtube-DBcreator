@@ -39,9 +39,9 @@ function getVideos(playlistIDNODE, callback1, title, token, call) {
   });
 }
 function authorize(credentials, requestData, callback, callback1, title, playlistIDNODE, call) {
-  var clientSecret = credentials.installed.client_secret;
-  var clientId = credentials.installed.client_id;
-  var redirectUrl = credentials.installed.redirect_uris[0];
+  var clientSecret = credentials.web.client_secret;
+  var clientId = credentials.web.client_id;
+  var redirectUrl = credentials.web.redirect_uris[0];
   var auth = new googleAuth();
   var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
@@ -50,33 +50,64 @@ function authorize(credentials, requestData, callback, callback1, title, playlis
     if (err) {
       getNewToken(oauth2Client, requestData, callback);
     } else {
+      console.log("token is there");
       oauth2Client.credentials = JSON.parse(token);
       callback(oauth2Client, requestData, callback1, title, playlistIDNODE, call);
     }
   });
 }
-function getNewToken(oauth2Client, requestData, callback) {
-  var authUrl = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES
-  });
-  console.log('Authorize this app by visiting this url: ', authUrl);
-  var rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-  rl.question('Enter the code from that page here: ', function (code) {
-    rl.close();
-    oauth2Client.getToken(code, function (err, token) {
+function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
+  // var authUrl = oauth2Client.generateAuthUrl({
+  //     access_type: 'offline',
+  //     scope: SCOPES
+  // });
+  // console.log('Authorize this app by visiting this url: ' , authUrl);
+  // var rl = readline.createInterface({
+  //     input: process.stdin,
+  //     output: process.stdout
+  // });
+  // rl.question('Enterprocessing the code from that page here: ', function (code) {
+  //     rl.close();
+  //     oauth2Client.getToken(code, function (err, token) {
+  //         if (err) {
+  //             console.log('Error while trying to retrieve access token', err);
+  //             return;
+  //         }
+  //         oauth2Client.credentials = token;
+  //         storeToken(token);
+  //         callback(oauth2Client, requestData, callbackthisFile);
+  //     });
+  // });
+
+
+  jwtClient.authorize(function (err, tokens) {
       if (err) {
-        console.log('Error while trying to retrieve access token', err);
-        return;
+          console.log(err);
+          return;
       }
-      oauth2Client.credentials = token;
-      storeToken(token);
-      callback(oauth2Client, requestData);
-    });
+      console.log(tokens);
+      oauth2Client.credentials = tokens;
+      storeToken(tokens);
+      callback(oauth2Client, requestData, callbackthisFile);
   });
+  // googleAuthJwt.authenticate({
+  //     // use the email address of the service account, as seen in the API console 
+  //     email: 'nodeserver@ajapp-192505.iam.gserviceaccount.com',
+  //     // use the PEM file we generated from the downloaded key 
+  //     keyFile: 'your-key-file.pem',
+  //     // specify the scopes you wish to access 
+  //     scopes: SCOPES
+  //   }, function (err, token) {
+  //     console.log(token);
+  //     console.log("JWT")
+  //     if(err){
+  //         console.log('Error while trying to retrieve access token', err);
+  //         return;
+  //     }
+  //     oauth2Client.credentials = token;
+  //     storeToken(token);
+  //     callback(oauth2Client, requestData, callbackthisFile);
+  //   });
 }
 function storeToken(token) {
   try {

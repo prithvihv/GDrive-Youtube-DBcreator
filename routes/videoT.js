@@ -7,7 +7,14 @@ var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
-
+var key = require('../AJapp-55843faea217.json');
+var jwtClient = new google.auth.JWT(
+    key.client_email,
+    null,
+    key.private_key,
+    SCOPES, // an array of auth scopes
+    null
+);
 // Load client secrets from a local file.
 var param = {
     'params': {
@@ -16,69 +23,59 @@ var param = {
     }
 };
 var list_IDvideos;
-var GetVideoTime = function (callbackIndex , listIDvideos ) {
+var GetVideoTime = function (callbackIndex, listIDvideos) {
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
         if (err) {
             console.log('Error loading client secret file: ' + err);
             return;
         }
-        list_IDvideos=listIDvideos;
+        list_IDvideos = listIDvideos;
 
-        authorize(JSON.parse(content) , param , videosListById ,callbackIndex);
+        authorize(JSON.parse(content), param, videosListById, callbackIndex);
     });
 };
 
-function authorize(credentials, requestData, callback ,callbackIndex) {
-    var clientSecret = credentials.installed.client_secret;
-    var clientId = credentials.installed.client_id;
-    var redirectUrl = credentials.installed.redirect_uris[0];
+function authorize(credentials, requestData, callback, callbackIndex) {
+    var clientSecret = credentials.web.client_secret;
+    var clientId = credentials.web.client_id;
+    var redirectUrl = credentials.web.redirect_uris[0];
     var auth = new googleAuth();
     var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
     // Check if we have previously stored a token.
     fs.readFile(TOKEN_PATH, function (err, token) {
-        if(list_IDvideos.length>50){
-            while(list_IDvideos.length) {
-                requestData.params.id =  (list_IDvideos.splice(0,50) ).toString();
+        if (list_IDvideos.length > 50) {
+            while (list_IDvideos.length) {
+                requestData.params.id = (list_IDvideos.splice(0, 50)).toString();
                 if (err) {
-                    getNewToken(oauth2Client, requestData, callback,callbackIndex);
+                    getNewToken(oauth2Client, requestData, callback, callbackIndex);
                 } else {
                     oauth2Client.credentials = JSON.parse(token);
-                    callback(oauth2Client, requestData ,callbackIndex);
+                    callback(oauth2Client, requestData, callbackIndex);
                 }
             }
-        }else{
+        } else {
             requestData.params.id = list_IDvideos;
             if (err) {
-                getNewToken(oauth2Client, requestData, callback,callbackIndex);
+                getNewToken(oauth2Client, requestData, callback, callbackIndex);
             } else {
                 oauth2Client.credentials = JSON.parse(token);
-                callback(oauth2Client, requestData ,callbackIndex);
+                callback(oauth2Client, requestData, callbackIndex);
             }
         }
     });
 }
-function getNewToken(oauth2Client, requestData, callback,callbackIndex) {
-    var authUrl = oauth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: SCOPES
-    });
-    console.log('Authorize this app by visiting this url: ', authUrl);
-    var rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    rl.question('Enter the code from that page here: ', function (code) {
-        rl.close();
-        oauth2Client.getToken(code, function (err, token) {
-            if (err) {
-                console.log('Error while trying to retrieve access token', err);
-                return;
-            }
-            oauth2Client.credentials = token;
-            storeToken(token);
-            callback(oauth2Client, requestData,callbackIndex);
-        });
+function getNewToken(oauth2Client, requestData, callback, callbackIndex) {
+
+    jwtClient.authorize(function (err, tokens) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        console.log(tokens);
+        oauth2Client.credentials = tokens;
+        storeToken(tokens);
+        callback(oauth2Client, requestData, callbackIndex);
     });
 }
 function storeToken(token) {
@@ -130,7 +127,7 @@ function createResource(properties) {
     }
     return resource;
 }
-function videosListById(auth, requestData ,callbackIndex) {
+function videosListById(auth, requestData, callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
@@ -145,5 +142,5 @@ function videosListById(auth, requestData ,callbackIndex) {
 }
 
 module.exports = {
-    getVid :GetVideoTime
+    getVid: GetVideoTime
 };

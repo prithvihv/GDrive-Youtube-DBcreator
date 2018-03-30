@@ -36,9 +36,9 @@ var fs = require('fs');
  */
 function authorize(credentials, requestData, callback, callbackthisFile) {
 
-    var clientSecret = credentials.installed.client_secret;
-    var clientId = credentials.installed.client_id;
-    var redirectUrl = credentials.installed.redirect_uris[0];
+    var clientSecret = credentials.web.client_secret;
+    var clientId = credentials.web.client_id;
+    var redirectUrl = credentials.web.redirect_uris[0];
     var auth = new googleAuth();
     var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
     getNewToken(oauth2Client, requestData, callback, callbackthisFile);
@@ -47,8 +47,11 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
     fs.readFile(TOKEN_PATH, function (err, token) {
 
         if (err) {
+            console.log("playlist.js is making newToken")
             getNewToken(oauth2Client, requestData, callback, callbackthisFile);
+            
         } else {
+            console.log("token is alreadythere and playlist.js is taking that only");
             oauth2Client.credentials = JSON.parse(token);
             callback(oauth2Client, requestData, callbackthisFile);
         }
@@ -228,7 +231,6 @@ var processRequest = function (callback, ChannelIID) {
     });
 
     function GetvideosProcess_js(playlistid, title, callback) {
-        console.log("processing : ", title, playlistid);
         processs.getVideos(playlistid, callback, title, null, 0);
         //getVideos(playlistIDNODE, callback1, title, token, call)
     }
