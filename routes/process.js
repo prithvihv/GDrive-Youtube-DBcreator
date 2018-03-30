@@ -14,6 +14,14 @@ var googleAuth = require('google-auth-library');
 //const isPlaylist = require("is-playlist");
 var count = 0;
 var that;
+var key = require('../AJapp-55843faea217.json');
+var jwtClient = new google.auth.JWT(
+  key.client_email,
+  null,
+  key.private_key,
+  SCOPES, // an array of auth scopes
+  null
+);
 
 var param = {
   'params': {
@@ -86,8 +94,9 @@ function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
           return;
       }
       console.log(tokens);
+      
       oauth2Client.credentials = tokens;
-      storeToken(tokens);
+      
       callback(oauth2Client, requestData, callbackthisFile);
   });
   // googleAuthJwt.authenticate({
