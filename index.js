@@ -38,7 +38,7 @@ app.use(cors({ origin: true }));
 //START test routes----------------------------------------------------------//
 {
     app.get('/', (req, res) => {
-        res.send("Welcome to Jungle");
+        res.send("Welcome To The Jungle");
     });
     app.get('/helloworld', (req, res) => {
         res.send("hello");
