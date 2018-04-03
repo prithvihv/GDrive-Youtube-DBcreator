@@ -16,20 +16,22 @@ var jwtClient = new google.auth.JWT(
     null
 );
 // Load client secrets from a local file.
-var param = {
-    'params': {
-        // 'id': 'fUpdBdwMy3M',
-        'part': 'contentDetails'
-    }
-};
+var counter =0;
 var list_IDvideos;
 var GetVideoTime = function (callbackIndex, listIDvideos) {
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+        var param = {
+            'params': {
+                // 'id': 'fUpdBdwMy3M',
+                'part': 'contentDetails'
+            }
+        };
         if (err) {
             console.log('Error loading client secret file: ' + err);
             return;
         }
         list_IDvideos = listIDvideos;
+        console.log("length of list is " , list_IDvideos.length)
 
         authorize(JSON.parse(content), param, videosListById, callbackIndex);
     });
@@ -44,37 +46,25 @@ function authorize(credentials, requestData, callback, callbackIndex) {
 
     // Check if we have previously stored a token.
     fs.readFile(TOKEN_PATH, function (err, token) {
-        if (list_IDvideos.length > 50) {
-            while (list_IDvideos.length) {
-                requestData.params.id = (list_IDvideos.splice(0, 50)).toString();
-                if (err) {
-                    getNewToken(oauth2Client, requestData, callback, callbackIndex);
-                } else {
-                    oauth2Client.credentials = JSON.parse(token);
-                    callback(oauth2Client, requestData, callbackIndex);
-                }
-            }
-        } else {
-            requestData.params.id = list_IDvideos;
-            if (err) {
-                getNewToken(oauth2Client, requestData, callback, callbackIndex);
-            } else {
-                oauth2Client.credentials = JSON.parse(token);
-                callback(oauth2Client, requestData, callbackIndex);
-            }
+        console.log("readfile");
+        var r = function rotate(list_IDvideos){
+            console.log(counter);
+            counter++;
+            requestData.params.id =  (list_IDvideos.splice(0, 50)).toString();
+            getNewToken(oauth2Client, requestData, callback, callbackIndex,rotate);
         }
+       r(list_IDvideos);
     });
 }
-function getNewToken(oauth2Client, requestData, callback, callbackIndex) {
+function getNewToken(oauth2Client, requestData, callback, callbackIndex,rotate) {
 
     jwtClient.authorize(function (err, tokens) {
         if (err) {
             console.log(err);
             return;
         }
-        console.log(tokens);
         oauth2Client.credentials = tokens;
-        callback(oauth2Client, requestData, callbackIndex);
+        callback(oauth2Client, requestData, callbackIndex,rotate);
     });
 }
 function storeToken(token) {
@@ -126,7 +116,7 @@ function createResource(properties) {
     }
     return resource;
 }
-function videosListById(auth, requestData, callbackIndex) {
+function videosListById(auth, requestData, callbackIndex,rotate) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
@@ -135,8 +125,12 @@ function videosListById(auth, requestData, callbackIndex) {
             console.log('The API returned an error: ' + err);
             return;
         }
-        console.log("reponse recreated");
         callbackIndex(response);
+        if (list_IDvideos.length > 50) {
+            rotate(list_IDvideos);   
+        } else if(list_IDvideos>0){
+            rotate(list_IDvideos);  
+        }
     });
 }
 

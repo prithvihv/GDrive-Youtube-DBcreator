@@ -20,14 +20,15 @@ var jwtClient = new google.auth.JWT(
 
 // 'part': 'snippet,contentDetails',
 // 'playlistId': 'PLBCF2DAC6FFB574DE'
-var param = {
-    'params': {
-        'maxResults': '50',
-        'part': 'snippet',
-    }
-};
+
 
 var processRequest = function (callbackIndex, token, playlistChannel) {
+    var param = {
+        'params': {
+            'maxResults': '50',
+            'part': 'snippet',
+        }
+    };
     // console.log("process called");
     // console.log(token);
     // Load client secrets from a local file.
@@ -39,11 +40,13 @@ var processRequest = function (callbackIndex, token, playlistChannel) {
         param.params.playlistId = playlistChannel;
         if (token) {
             param.params.pageToken = token;
+        }else{
+            console.log("no token ", playlistChannel);
+            console.log(param);
         }
         // Authorize a client with the loaded credentials, then call the YouTube API.
         //See full code sample for authorize() function code.
         authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callbackIndex);
-
     });
 
     /**
@@ -109,7 +112,6 @@ function getNewToken(oauth2Client, requestData, callback, callbackIndex) {
             console.log(err);
             return;
         }
-        console.log(tokens);
         oauth2Client.credentials = tokens;
         callback(oauth2Client, requestData, callbackIndex);
     });
@@ -193,13 +195,12 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
-    console.log(parameters);
     service.playlistItems.list(parameters, function (err, response) {
         if (err) {
-            console.log('The API returned an error: ' + err);
+            console.log('The API returned an errorrrrrrr: ' + err);
             return;
         }
-        //console.log(response);
+        console.log(response.pageInfo);
         //console.log("got response re routing");
         callbackIndex(false, response, response['nextPageToken']);
     });

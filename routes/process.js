@@ -93,7 +93,6 @@ function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
           console.log(err);
           return;
       }
-      console.log(tokens);
       
       oauth2Client.credentials = tokens;
       

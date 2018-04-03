@@ -30,7 +30,7 @@ let proccess = require("./routes/process");
 let videoTime = require("./routes/videoT");
 
 //random letiables
-const ArrayChannelVideos = ['UUNmRmSpIJYqu7ttPLWLx2sw', 'UUrsXeU6cuGStvMCUhAgULyg'];
+const ArrayChannelVideos = ['UUrsXeU6cuGStvMCUhAgULyg','UUNmRmSpIJYqu7ttPLWLx2sw'];
 let ArrayPlaylist = ['UCrsXeU6cuGStvMCUhAgULyg', 'UCNmRmSpIJYqu7ttPLWLx2sw'];
 let ArrayVideos = [];
 let callnumber = 0;
@@ -53,6 +53,7 @@ app.use(cors({ origin: true }));
     app.get('/clearDB', (req, res) => {
         database.ref("/").set(":)").then(function () {
             console.log("db cleared");
+            indexArrayVideos =0;
         });
         res.status(200).write("done");
     });
@@ -73,23 +74,26 @@ app.get('/listvideo', (req, res) => {
                 if (token != null || token !== undefined) {
                     playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
                 } else {
-                    token = null;
                     indexArrayVideos++;
-                    console.log("Next video :" + indexArrayVideos);
+                    console.log(data);
+                    console.log("Next video :" + indexArrayVideos+ "and player is :" +ArrayChannelVideos[indexArrayVideos]);
                     if (indexArrayVideos < ArrayChannelVideos.length)
-                        playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
+                        playlistitemTHING.processRequest(again, null, ArrayChannelVideos[indexArrayVideos]);
                     else {
                         console.log("done da u chill now");
+                        
                         res.status(200).write("DONE");
                     }
                 }
             } else {
                 console.log("DONE BOI");
+            
             }
         }
         res.status(200).write("writing vidoes......");
     }, null, ArrayChannelVideos[indexArrayVideos]);
 });
+
 //END Videos routes---------------------------------------------------------//
 
 //START PlaylistsAndVideos routes---------------------------------------------------------//
@@ -136,9 +140,7 @@ app.get('/videoT', (req, res) => {
     }).then(() => {
         videoTime.getVid(function (data) {
             data["items"].forEach((item) => {
-                database.ref("/timeV/" + item['id']).set(item["contentDetails"]["duration"]).then(() => {
-                    console.log("done writing times");
-                });
+                database.ref("/timeV/" + item['id']).set(item["contentDetails"]["duration"]);
             });
         }, ArrayVideos);
         res.status(200).send("Updating database.......");

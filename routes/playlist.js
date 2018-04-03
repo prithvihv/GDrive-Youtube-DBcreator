@@ -44,18 +44,6 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
     getNewToken(oauth2Client, requestData, callback, callbackthisFile);
 
     // Check if we have previously stored a token.
-    fs.readFile(TOKEN_PATH, function (err, token) {
-
-        if (err) {
-            console.log("playlist.js is making newToken")
-            getNewToken(oauth2Client, requestData, callback, callbackthisFile);
-            
-        } else {
-            console.log("token is alreadythere and playlist.js is taking that only");
-            oauth2Client.credentials = JSON.parse(token);
-            callback(oauth2Client, requestData, callbackthisFile);
-        }
-    });
 }
 
 function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
@@ -87,9 +75,7 @@ function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
             console.log(err);
             return;
         }
-        console.log(tokens);
         oauth2Client.credentials = tokens;
-        storeToken(tokens);
         callback(oauth2Client, requestData, callbackthisFile);
     });
     // googleAuthJwt.authenticate({
@@ -190,6 +176,7 @@ function playlistsListByChannelId(auth, requestData, callbackthisFile) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
+    console.log(parameters);
     service.playlists.list(parameters, function (err, response) {
         if (err) {
             console.log("before err");
@@ -200,14 +187,15 @@ function playlistsListByChannelId(auth, requestData, callbackthisFile) {
     });
 }
 
-var param = {
-    'params': {
-        'maxResults': '50',
-        'part': 'snippet,contentDetails'
-    }
-};
+
 
 var processRequest = function (callback, ChannelIID) {
+    var param = {
+        'params': {
+            'maxResults': '50',
+            'part': 'snippet,contentDetails'
+        }
+    };
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
         if (err) {
             console.log('Error loading client secret file: ' + err);
