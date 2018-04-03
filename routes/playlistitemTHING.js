@@ -111,7 +111,6 @@ function getNewToken(oauth2Client, requestData, callback, callbackIndex) {
         }
         console.log(tokens);
         oauth2Client.credentials = tokens;
-        storeToken(tokens);
         callback(oauth2Client, requestData, callbackIndex);
     });
 }

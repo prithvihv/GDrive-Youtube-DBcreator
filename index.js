@@ -3,8 +3,8 @@ let express = require("express");
 const cors = require("cors");
 //firebase
 
-const functions = require('firebase-functions');
-//const admin = require('firebase-admin');
+//const functions = require('firebase-functions');
+const admin = require('firebase-admin');
 let config = {
     apiKey: "AIzaSyAufTAIIp28e8nJL_Ek1DeDxuCEJKJHKI4",
     authDomain: "ajapp-192505.firebaseapp.com",
@@ -16,7 +16,12 @@ let config = {
 const firebase = require('firebase');
 firebase.initializeApp(config);
 let database = firebase.database();
-//admin.initializeApp(functions.config().firebase);
+
+// var serviceAccount = require('./ajapp-192505-firebase-adminsdk-22c7e-b56dca2e7c.json');
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+//     databaseURL: 'https://ajapp-192505.firebaseio.com/'
+// });
 
 //routes
 let playlist = require("./routes/playlist");
@@ -42,6 +47,7 @@ app.use(cors({ origin: true }));
     });
     app.get('/helloworld', (req, res) => {
         res.send("hello");
+        
     });
 
     app.get('/clearDB', (req, res) => {
@@ -122,25 +128,25 @@ app.get("/playlist", (req, res) => {
 app.get('/videoT', (req, res) => {
     //first make list of data
     database.ref("/videos").once('value').then(function (packets) {
-        packets.forEach(packet=>{
-            packet.child('items').forEach(videoitem=>{
+        packets.forEach(packet => {
+            packet.child('items').forEach(videoitem => {
                 ArrayVideos.push(videoitem.child('snippet').child('resourceId').child('videoId').val());
             });
         });
-    }).then(()=>{
+    }).then(() => {
         videoTime.getVid(function (data) {
-            data["items"].forEach((item)=>{
-                database.ref("/timeV/" + item['id']).set(item["contentDetails"]["duration"]).then(()=>{
+            data["items"].forEach((item) => {
+                database.ref("/timeV/" + item['id']).set(item["contentDetails"]["duration"]).then(() => {
                     console.log("done writing times");
                 });
             });
-        },ArrayVideos);
+        }, ArrayVideos);
         res.status(200).send("Updating database.......");
     });
 });
 //END VideosTimeQuerying routes---------------------------------------------------------//
 
-app.listen(process.env.PORT ||3000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log("Api up and running");
 });
 
