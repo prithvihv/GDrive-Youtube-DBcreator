@@ -135,7 +135,7 @@ app.get('/videoT', (req, res) => {
                 });
             });
         },ArrayVideos);
-        res.status(200).send("Updating database");
+        res.status(200).send("Updating database.......");
     });
 });
 //END VideosTimeQuerying routes---------------------------------------------------------//
