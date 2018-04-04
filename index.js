@@ -30,11 +30,12 @@ let proccess = require("./routes/process");
 let videoTime = require("./routes/videoT");
 
 //random letiables
-const ArrayChannelVideos = ['UUrsXeU6cuGStvMCUhAgULyg','UUNmRmSpIJYqu7ttPLWLx2sw'];
+const ArrayChannelVideos = ['UUrsXeU6cuGStvMCUhAgULyg', 'UUNmRmSpIJYqu7ttPLWLx2sw'];
 let ArrayPlaylist = ['UCrsXeU6cuGStvMCUhAgULyg', 'UCNmRmSpIJYqu7ttPLWLx2sw'];
 let ArrayVideos = [];
 let callnumber = 0;
 let indexArrayVideos = 0;
+
 
 const app = express();
 
@@ -47,13 +48,13 @@ app.use(cors({ origin: true }));
     });
     app.get('/helloworld', (req, res) => {
         res.send("hello");
-        
+
     });
 
     app.get('/clearDB', (req, res) => {
         database.ref("/").set(":)").then(function () {
             console.log("db cleared");
-            indexArrayVideos =0;
+            indexArrayVideos = 0;
         });
         res.status(200).write("done");
     });
@@ -74,16 +75,28 @@ app.get('/listvideo', (req, res) => {
             res.status(200).write("error");
         else {
             if (indexArrayVideos < ArrayChannelVideos.length) {
-                database.ref("/videos/packet" + callnumber).set(data).then(() => {
-                    console.log("datapacket written packet number :" + callnumber);
-                });
-                callnumber++;
+                // database.ref("/videos/packet" + callnumber).set(data).then(() => {
+                //     console.log("datapacket written packet number :" + callnumber);
+                // });
+                data["items"].forEach(video => {
+                    var temp = {};
+                    callnumber++;  
+                    temp["title"]=video.snippet.title;
+                    temp["videoID"]=video.snippet.resourceId.videoId;
+                    temp["publishedAt"]=new Date(video.snippet.publishedAt).toString();
+                    temp["timestamp"]=new Date(video.snippet.publishedAt).valueOf();
+                    console.log(temp);
+                    database.ref("allvideos/" + video.snippet.resourceId.videoId).set(temp).then(() => {
+                        // console.log("video written title and id is :" + temp.title + " : " + temp.publishedAt +" : call number is : " + callnumber);
+                    });
+                                     
+                })
                 if (token != null || token !== undefined) {
                     playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
                 } else {
                     indexArrayVideos++;
                     console.log(data);
-                    console.log("Next video :" + indexArrayVideos+ "and player is :" +ArrayChannelVideos[indexArrayVideos]);
+                    console.log("Next video :" + indexArrayVideos + "and player is :" + ArrayChannelVideos[indexArrayVideos]);
                     if (indexArrayVideos < ArrayChannelVideos.length)
                         playlistitemTHING.processRequest(again, null, ArrayChannelVideos[indexArrayVideos]);
                     else {
@@ -93,7 +106,7 @@ app.get('/listvideo', (req, res) => {
                 }
             } else {
                 console.log("DONE BOI");
-            
+                console.log(callnumber)
             }
         }
         res.status(200).write("writing vidoes......");
@@ -136,16 +149,18 @@ app.get("/playlist", (req, res) => {
 //START VideosTimeQuerying routes---------------------------------------------------------//
 app.get('/videoT', (req, res) => {
     //first make list of data
-    database.ref("/videos").once('value').then(function (packets) {
-        packets.forEach(packet => {
-            packet.child('items').forEach(videoitem => {
-                ArrayVideos.push(videoitem.child('snippet').child('resourceId').child('videoId').val());
-            });
+    database.ref("/allvideos").once('value').then(function (allvideos) {
+        allvideos.forEach(video => {
+                ArrayVideos.push(video.child("videoID").val());
         });
     }).then(() => {
+        console.log(ArrayVideos.length);
         videoTime.getVid(function (data) {
             data["items"].forEach((item) => {
-                database.ref("/timeV/" + item['id']).set(item["contentDetails"]["duration"]);
+                temp = {
+                    "duration":item["contentDetails"]["duration"]
+                }
+                database.ref("/allvideos/" + item['id']).update(temp);
             });
         }, ArrayVideos);
         res.status(200).send("Updating database.......");
@@ -162,3 +177,25 @@ app.listen(process.env.PORT || 3000, () => {
 // exports.helloworld = functions.https.onRequest((req,res)=>{
 //     res.send("hello priya ");
 // });
+
+
+
+app.get('/getV', (req, res) => {
+    //first make list of data
+    database.ref("/allvideos").once('value').then(function (allvideos) {
+        allvideos.forEach(video => {
+                ArrayVideos.push(video.child("videoID").val());
+        });
+    }).then(() => {
+        console.log(ArrayVideos.length);
+        videoTime.getVid(function (data) {
+            data["items"].forEach((item) => {
+                temp = {
+                    "duration":item["contentDetails"]["duration"]
+                }
+                database.ref("/allvideos/" + item['id']).update(temp);
+            });
+        }, ArrayVideos);
+        res.status(200).send("Updating database.......");
+    });
+});
