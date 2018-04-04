@@ -60,6 +60,13 @@ app.use(cors({ origin: true }));
 }
 //END test routes-----------------------------------------------------------//
 
+//notes:
+/*
+    * first get all videos and write them 
+    * then sort then and write them 
+    * try quering all 2000 and paginating
+*/
+
 //START Videos routes---------------------------------------------------------//
 app.get('/listvideo', (req, res) => {
     playlistitemTHING.processRequest(function again(err, data, token) {
@@ -81,7 +88,6 @@ app.get('/listvideo', (req, res) => {
                         playlistitemTHING.processRequest(again, null, ArrayChannelVideos[indexArrayVideos]);
                     else {
                         console.log("done da u chill now");
-                        
                         res.status(200).write("DONE");
                     }
                 }
@@ -112,8 +118,7 @@ app.get("/playlist", (req, res) => {
                 call = call + 1;
                 proccess.getVideos(data['playlistid'], again, data['title'], data['nextPageToken'], call);
             } else {
-                console.log("OR");
-                res.status(200).write("Completed writing");
+                console.log("Next token null");
                 indexArrayVideos++;
                 if (indexArrayVideos < ArrayPlaylist.length)
                     playlist.processRequest(again, ArrayPlaylist[indexArrayVideos]);

@@ -23,16 +23,15 @@ var jwtClient = new google.auth.JWT(
   null
 );
 
-var param = {
-  'params': {
-    'maxResults': '50',
-    'part': 'snippet',
-  }
-};
 
-function getVideos(playlistIDNODE, callback1, title, token, call) {
+function getVideos(playlistIDNODE, callbackindex, title, token, call) {
   // Load client secrets from a local file.
-  console.log(call);
+  var param = {
+    'params': {
+      'maxResults': '50',
+      'part': 'snippet',
+    }
+  };
   fs.readFile('client_secret.json', function processClientSecrets(err, content) {
     if (err) {
       console.log('Error loading client secret file: ' + err);
@@ -43,28 +42,18 @@ function getVideos(playlistIDNODE, callback1, title, token, call) {
     param.params.playlistId = playlistIDNODE;
     if (token != null || token != undefined)
       param.params.pageToken = token;
-    authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callback1, title, playlistIDNODE, call);
+    authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callbackindex, title, playlistIDNODE, call);
   });
 }
-function authorize(credentials, requestData, callback, callback1, title, playlistIDNODE, call) {
+function authorize(credentials, requestData, callback, callbackindex, title, playlistIDNODE, call) {
   var clientSecret = credentials.web.client_secret;
   var clientId = credentials.web.client_id;
   var redirectUrl = credentials.web.redirect_uris[0];
   var auth = new googleAuth();
   var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
-
-  // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, function (err, token) {
-    if (err) {
-      getNewToken(oauth2Client, requestData, callback);
-    } else {
-      console.log("token is there");
-      oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client, requestData, callback1, title, playlistIDNODE, call);
-    }
-  });
+  getNewToken(oauth2Client, requestData, callback, callbackindex,title,playlistIDNODE,call);
 }
-function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
+function getNewToken(oauth2Client, requestData, callback, callbackindex,title,playlistIDNODE,call) {
   // var authUrl = oauth2Client.generateAuthUrl({
   //     access_type: 'offline',
   //     scope: SCOPES
@@ -89,14 +78,14 @@ function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
 
 
   jwtClient.authorize(function (err, tokens) {
-      if (err) {
-          console.log(err);
-          return;
-      }
-      
-      oauth2Client.credentials = tokens;
-      
-      callback(oauth2Client, requestData, callbackthisFile);
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    oauth2Client.credentials = tokens;
+
+    callback(oauth2Client, requestData, callbackindex,title,playlistIDNODE,call);
   });
   // googleAuthJwt.authenticate({
   //     // use the email address of the service account, as seen in the API console 
@@ -166,11 +155,8 @@ function createResource(properties) {
   }
   return resource;
 }
-
-var ttle;
-var plid;
-var self;
-function playlistItemsListByPlaylistId(auth, requestData, callback1, title, playlistIDNODE, call) {
+//oauth2Client, requestData, callbackindex,title,playlistIDNODE,call
+function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, playlistIDNODE, call) {
   var service = google.youtube('v3');
   var parameters = removeEmptyParameters(requestData['params']);
   parameters['auth'] = auth;
@@ -180,15 +166,11 @@ function playlistItemsListByPlaylistId(auth, requestData, callback1, title, play
       console.log('The API returned an error: ' + err);
       return;
     }
-    /*if(response.items.length!=0)
-      response.items.forEach(element => {
-        console.log(element.contentDetails);
-      });*/
     if (response['nextPageToken'] == null || response['nextPageToken'] == undefined) {
       console.log("no token");
       response["title"] = title;
       //console.log(response);
-      callback1(false, response, call);
+      callbackindex(false, response, call);
       // console.log(response);
     }
 

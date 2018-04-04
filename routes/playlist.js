@@ -176,11 +176,9 @@ function playlistsListByChannelId(auth, requestData, callbackthisFile) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
-    console.log(parameters);
     service.playlists.list(parameters, function (err, response) {
         if (err) {
-            console.log("before err");
-            console.log('The API returned an error: ' + err);
+            console.log('The API returned an errorrrrrrr: ' + err);
             return;
         }
         callbackthisFile(response);
@@ -218,8 +216,8 @@ var processRequest = function (callback, ChannelIID) {
         //writing call back here
     });
 
-    function GetvideosProcess_js(playlistid, title, callback) {
-        processs.getVideos(playlistid, callback, title, null, 0);
+    function GetvideosProcess_js(playlistid, title, callbackindex) {
+        processs.getVideos(playlistid, callbackindex, title, null, 0);
         //getVideos(playlistIDNODE, callback1, title, token, call)
     }
 };
