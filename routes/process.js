@@ -192,7 +192,7 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, 
       // }, playlistItemsListByPlaylistId);
       response['playlistid'] = playlistIDNODE;
       response['title'] = title;
-      callback1(false, response, call);
+      callbackindex(false, response, call);
     }
   });
 }
