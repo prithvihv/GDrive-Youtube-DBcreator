@@ -90,7 +90,7 @@ app.get('/listvideo', (req, res) => {
                         // console.log("video written title and id is :" + temp.title + " : " + temp.publishedAt +" : call number is : " + callnumber);
                     });
 
-                })
+                });
                 if (token != null || token !== undefined) {
                     playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
                 } else {
@@ -102,6 +102,8 @@ app.get('/listvideo', (req, res) => {
                     else {
                         console.log("done da u chill now");
                         res.status(200).write("DONE");
+                        indexArrayVideos=0;
+
                     }
                 }
             } else {
@@ -114,52 +116,6 @@ app.get('/listvideo', (req, res) => {
 });
 
 //END Videos routes---------------------------------------------------------//
-
-//START PlaylistsAndVideos routes---------------------------------------------------------//
-app.get("/playlist", (req, res) => {
-    playlist.processRequest(function again(err, data, call) {
-        if (call == null || call === undefined) {
-            call = 0;
-            console.log("undefined call")
-        }
-        if (err)
-            res.status(200).write("error");
-        else {
-            var temp = {};
-            var tempvideoarray = [];
-            temp["title"] = data['title'];
-            //temp["videos"] = 
-            data.items.forEach(video => {
-                tempvideoarray.push({
-                    "title": video.snippet.title,
-                    "videoID": video.snippet.resourceId.videoId,
-                    "publishedAt": new Date(video.snippet.publishedAt).toString(),
-                    "timestamp": new Date(video.snippet.publishedAt).valueOf()
-                })
-            })
-            temp["videos"] = tempvideoarray;
-            database.ref("/playlists/" + data['title'] + "/packet" + call).set(temp).then(() => {
-                if (data['nextPageToken'] != null || data['nextPageToken'] !== undefined) {
-                    console.log("getting more videos");
-                    call = call + 1;
-                    proccess.getVideos(data['playlistid'], again, data['title'], data['nextPageToken'], call);
-                } else {
-                    console.log("Next token null");
-                    indexArrayVideos++;
-                    if (indexArrayVideos < ArrayPlaylist.length)
-                        playlist.processRequest(again, ArrayPlaylist[indexArrayVideos]);
-                    else {
-                        console.log("done da u chill now");
-                        res.status(200).write("DONE")
-                    }
-                }
-            });
-
-        }
-        res.status(200).write("writing plalists.....");
-    }, ArrayPlaylist[0]);
-});
-//END PlaylistsAndVideos routes---------------------------------------------------------//
 
 //START VideosTimeQuerying routes---------------------------------------------------------//
 app.get('/videoT', (req, res) => {
@@ -198,19 +154,64 @@ app.listen(process.env.PORT || 3000, () => {
 app.get('/getV', (req, res) => {
     //first make list of data
     database.ref("/allvideos").once('value').then(function (allvideos) {
-        allvideos.forEach(video => {
-            ArrayVideos.push(video.child("videoID").val());
-        });
-    }).then(() => {
-        console.log(ArrayVideos.length);
-        videoTime.getVid(function (data) {
-            data["items"].forEach((item) => {
-                temp = {
-                    "duration": item["contentDetails"]["duration"]
-                }
-                database.ref("/allvideos/" + item['id']).update(temp);
+            allvideos.forEach(video => {
+                ArrayVideos.push(video.child("videoID").val());
             });
-        }, ArrayVideos);
+        }).then(()=>{
+            console.log(ArrayVideos.length);
+            videoTime.getVid(function (data) {
+                data["items"].forEach((item) => {
+                    temp = {
+                        "duration": item["contentDetails"]["duration"]
+                    }
+                    database.ref("/allvideos/" + item['id']).update(temp);
+                });
+            }, ArrayVideos);
+        });
         res.status(200).send("Updating database.......");
+});
+
+
+
+function writevideoDetails(video,data) {
+    database.ref("allvideos/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
+        var temp = dataSnap.val();
+        database.ref("playlists/" + video.snippet.playlistId + "/videos/" + video.snippet.resourceId.videoId).set(temp).then(value => {
+        });
+    });
+}
+function writeExtraDetails(data){
+    database.ref("playlists/" + data.playlistid).update({"title":data.title,"noofvideos":data.pageInfo.totalResults,"playlist":data.playlistid});
+}
+//START PlaylistsAndVideos routes---------------------------------------------------------//
+app.get("/playlist", (req, res) => {
+    for(var i=0 ; i<ArrayPlaylist.length;i++){
+        console.log(i);
+        playlist.processRequest(function again(err, data, token) {
+            if (err)
+                res.status(200).write("error");
+            else {
+                //database.ref("playlists/"+playliststring +"/title/").set(data['title']);
+                if (token != undefined || token != null) {
+                    proccess.getVideos(data['playlistid'], again, data['title'], data['nextPageToken']);
+                }
+                writeExtraDetails(data);
+                data.items.forEach(video => {
+                    writevideoDetails(video,data);
+                });
+
+            }
+        }, ArrayPlaylist[i]);
+    }
+    res.status(200).write("done writing playlists");
+
+});
+//video.snippet.resourceId.videoId, video.snippet.playlistId
+//END PlaylistsAndVideos routes---------------------------------------------------------//
+
+app.get("/updateVideos",(req,res)=>{
+    database.ref("/allvideos").once('value').then(function (allvideos) {
+        console.log(allvideos.numChildren());
+        database.ref("/general").set({"NoofVideos" : allvideos.numChildren()})
     });
 });

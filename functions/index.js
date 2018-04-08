@@ -16,14 +16,21 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 
 });
 
-exports.detectChange = functions.database.ref('/videos')
+exports.detectChange = functions.database.ref('/general/NoofVideos')
     .onWrite(event => {
         const crnt = event.data.current;
         const prev = event.data.previous;
 
         if (crnt.val() && !prev.val()) {
             // value created
-            console.log('Created: send push notification');
+            console.log('Created: no notification');
+        } else if (!crnt.val() && prev.val()) {
+            // value removed
+            console.log('Removed: no push');
+        } else {
+            // value updated
+            console.log('Updated: send push notification');
+            console.log('number of videos now vs before : ',crnt.val(),prev.val() );
             var message = {
                 notification: {
                     title: "Prabuji",
@@ -39,14 +46,7 @@ exports.detectChange = functions.database.ref('/videos')
                 })
                 .catch((error) => {
                     console.log('Error sending message:', error);
-                    response.send("error:/");
                 });
-
-        } else if (!crnt.val() && prev.val()) {
-            // value removed
-            console.log('Removed: send push notification');
-        } else {
-            // value updated
             console.log('Updated');
         }
-    })
+    });

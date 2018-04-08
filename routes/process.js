@@ -24,7 +24,7 @@ var jwtClient = new google.auth.JWT(
 );
 
 
-function getVideos(playlistIDNODE, callbackindex, title, token, call) {
+function getVideos(playlistIDNODE, callbackindex, title, token) {
   // Load client secrets from a local file.
   var param = {
     'params': {
@@ -42,18 +42,18 @@ function getVideos(playlistIDNODE, callbackindex, title, token, call) {
     param.params.playlistId = playlistIDNODE;
     if (token != null || token != undefined)
       param.params.pageToken = token;
-    authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callbackindex, title, playlistIDNODE, call);
+    authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callbackindex, title, playlistIDNODE);
   });
 }
-function authorize(credentials, requestData, callback, callbackindex, title, playlistIDNODE, call) {
+function authorize(credentials, requestData, callback, callbackindex, title, playlistIDNODE) {
   var clientSecret = credentials.web.client_secret;
   var clientId = credentials.web.client_id;
   var redirectUrl = credentials.web.redirect_uris[0];
   var auth = new googleAuth();
   var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
-  getNewToken(oauth2Client, requestData, callback, callbackindex,title,playlistIDNODE,call);
+  getNewToken(oauth2Client, requestData, callback, callbackindex,title,playlistIDNODE);
 }
-function getNewToken(oauth2Client, requestData, callback, callbackindex,title,playlistIDNODE,call) {
+function getNewToken(oauth2Client, requestData, callback, callbackindex,title,playlistIDNODE) {
   // var authUrl = oauth2Client.generateAuthUrl({
   //     access_type: 'offline',
   //     scope: SCOPES
@@ -85,7 +85,7 @@ function getNewToken(oauth2Client, requestData, callback, callbackindex,title,pl
 
     oauth2Client.credentials = tokens;
 
-    callback(oauth2Client, requestData, callbackindex,title,playlistIDNODE,call);
+    callback(oauth2Client, requestData, callbackindex,title,playlistIDNODE);
   });
   // googleAuthJwt.authenticate({
   //     // use the email address of the service account, as seen in the API console 
@@ -156,7 +156,7 @@ function createResource(properties) {
   return resource;
 }
 //oauth2Client, requestData, callbackindex,title,playlistIDNODE,call
-function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, playlistIDNODE, call) {
+function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, playlistIDNODE) {
   var service = google.youtube('v3');
   var parameters = removeEmptyParameters(requestData['params']);
   parameters['auth'] = auth;
@@ -166,19 +166,12 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, 
       console.log('The API returned an error: ' + err);
       return;
     }
-    if (response['nextPageToken'] == null || response['nextPageToken'] == undefined) {
-      console.log("no token");
-      response["title"] = title;
-      //console.log(response);
-      callbackindex(false, response, call);
-      // console.log(response);
-    }
-
-    if (response['nextPageToken'] != null || response['nextPageToken'] != undefined) {
-      console.log("token present", " ", title);
-      if (err) {
-        console.log('Error loading client secret file: ' + err);
-        return;
+      response['playlistid'] = playlistIDNODE;
+      response['title'] = title;
+      if (response['nextPageToken'] == null || response['nextPageToken'] == undefined) {
+          callbackindex(false, response, null);
+      } else {
+          callbackindex(false, response, response['nextPageToken']);
       }
       // Authorize a client with the loaded credentials, then call the YouTube API.
       //See full code sample for authorize() function code.
@@ -190,10 +183,8 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, 
       //     'playlistId': currentplaylist
       //   }
       // }, playlistItemsListByPlaylistId);
-      response['playlistid'] = playlistIDNODE;
-      response['title'] = title;
-      callbackindex(false, response, call);
-    }
+
+
   });
 }
 module.exports = {

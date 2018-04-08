@@ -31,7 +31,7 @@ var GetVideoTime = function (callbackIndex, listIDvideos) {
             return;
         }
         list_IDvideos = listIDvideos;
-        console.log("length of list is " , list_IDvideos.length)
+        console.log("length of list is " , list_IDvideos.length);
 
         authorize(JSON.parse(content), param, videosListById, callbackIndex);
     });
@@ -43,20 +43,10 @@ function authorize(credentials, requestData, callback, callbackIndex) {
     var redirectUrl = credentials.web.redirect_uris[0];
     var auth = new googleAuth();
     var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
-
+    getNewToken(oauth2Client, requestData, callback, callbackIndex);
     // Check if we have previously stored a token.
-    fs.readFile(TOKEN_PATH, function (err, token) {
-        console.log("readfile");
-        var r = function rotate(list_IDvideos){
-            console.log(counter);
-            counter++;
-            requestData.params.id =  (list_IDvideos.splice(0, 50)).toString();
-            getNewToken(oauth2Client, requestData, callback, callbackIndex,rotate);
-        }
-       r(list_IDvideos);
-    });
 }
-function getNewToken(oauth2Client, requestData, callback, callbackIndex,rotate) {
+function getNewToken(oauth2Client, requestData, callback, callbackIndex) {
 
     jwtClient.authorize(function (err, tokens) {
         if (err) {
@@ -64,7 +54,7 @@ function getNewToken(oauth2Client, requestData, callback, callbackIndex,rotate) 
             return;
         }
         oauth2Client.credentials = tokens;
-        callback(oauth2Client, requestData, callbackIndex,rotate);
+        callback(oauth2Client, requestData, callbackIndex);
     });
 }
 function storeToken(token) {
@@ -116,22 +106,34 @@ function createResource(properties) {
     }
     return resource;
 }
-function videosListById(auth, requestData, callbackIndex,rotate) {
+function videosListById(auth, requestData, callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
-    service.videos.list(parameters, function (err, response) {
-        if (err) {
-            console.log('The API returned an error: ' + err);
-            return;
+
+    // Check if we have previously stored a token.
+    var i=0;
+        function repeat(i){
+            console.log(i);
+            parameters['id'] =  (list_IDvideos.splice(0, 50)).toString();
+
+            service.videos.list(parameters, function (err, response) {
+                if (err) {
+                    console.log('The API returned an error: ' + err);
+                    return;
+                }
+                console.log(response);
+                //repeat(i+response["page"])
+                callbackIndex(response);
+
+                    if(list_IDvideos>i+response["pageInfo"]["totalResults"])
+                        repeat(i+response["pageInfo"]["totalResults"])
+                    if(list_IDvideos==i+response)
+                            return;
+                repeat(i+response["pageInfo"]["totalResults"])
+            });
         }
-        callbackIndex(response);
-        if (list_IDvideos.length > 50) {
-            rotate(list_IDvideos);   
-        } else if(list_IDvideos>0){
-            rotate(list_IDvideos);  
-        }
-    });
+        repeat(i);
 }
 
 module.exports = {

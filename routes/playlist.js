@@ -187,7 +187,7 @@ function playlistsListByChannelId(auth, requestData, callbackthisFile) {
 
 
 
-var processRequest = function (callback, ChannelIID) {
+var processRequest = function (callbackindex, ChannelIID) {
     var param = {
         'params': {
             'maxResults': '50',
@@ -205,21 +205,16 @@ var processRequest = function (callback, ChannelIID) {
         //             //UCNmRmSpIJYqu7ttPLWLx2sw atmajyothisatsang UUNmRmSpIJYqu7ttPLWLx2sw
         //             //UCrsXeU6cuGStvMCUhAgULyg Light of the Self Foundation UUrsXeU6cuGStvMCUhAgULyg
         //UCjXfkj5iapKHJrhYfAF9ZGg
-        console.log("ChannelID : ", ChannelIID, " next one ?");
         param.params.channelId = ChannelIID;
         authorize(JSON.parse(content), param, playlistsListByChannelId, function (ArrayYoutubePlaylist) {
-            ArrayYoutubePlaylist.items.forEach(element => {
-                //pass this value and write it to the dp 
-                GetvideosProcess_js(element.id, element.snippet.title, callback)
+            ArrayYoutubePlaylist.items.forEach(playlist => {
+                processs.getVideos(playlist.id, callbackindex, playlist.snippet.title, null);
+
             });
         });
         //writing call back here
     });
 
-    function GetvideosProcess_js(playlistid, title, callbackindex) {
-        processs.getVideos(playlistid, callbackindex, title, null, 0);
-        //getVideos(playlistIDNODE, callback1, title, token, call)
-    }
 };
 module.exports = {
     processRequest: processRequest
