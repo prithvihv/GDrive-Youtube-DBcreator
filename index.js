@@ -48,7 +48,6 @@ app.use(cors({ origin: true }));
     });
     app.get('/helloworld', (req, res) => {
         res.send("hello");
-
     });
 
     app.get('/clearDB', (req, res) => {
@@ -81,11 +80,12 @@ app.get('/listvideo', (req, res) => {
                 data["items"].forEach(video => {
                     var temp = {};
                     callnumber++;
+                    console.log( (new Date(video.snippet.publishedAt).toString()).slice(0,11));
                     temp["title"] = video.snippet.title;
                     temp["videoID"] = video.snippet.resourceId.videoId;
-                    temp["publishedAt"] = new Date(video.snippet.publishedAt).toString();
+                    temp["publishedAt"] = (new Date(video.snippet.publishedAt).toString()).slice(0,11);
                     temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
-                    console.log(temp);
+
                     database.ref("allvideos/" + video.snippet.resourceId.videoId).set(temp).then(() => {
                         // console.log("video written title and id is :" + temp.title + " : " + temp.publishedAt +" : call number is : " + callnumber);
                     });
@@ -95,7 +95,7 @@ app.get('/listvideo', (req, res) => {
                     playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
                 } else {
                     indexArrayVideos++;
-                    console.log(data);
+
                     console.log("Next video :" + indexArrayVideos + "and player is :" + ArrayChannelVideos[indexArrayVideos]);
                     if (indexArrayVideos < ArrayChannelVideos.length)
                         playlistitemTHING.processRequest(again, null, ArrayChannelVideos[indexArrayVideos]);
@@ -151,6 +151,7 @@ app.listen(process.env.PORT || 3000, () => {
 
 
 
+
 app.get('/getV', (req, res) => {
     //first make list of data
     database.ref("/allvideos").once('value').then(function (allvideos) {
@@ -162,7 +163,7 @@ app.get('/getV', (req, res) => {
             videoTime.getVid(function (data) {
                 data["items"].forEach((item) => {
                     temp = {
-                        "duration": item["contentDetails"]["duration"]
+                        "duration": convertTime(item["contentDetails"]["duration"])
                     }
                     database.ref("/allvideos/" + item['id']).update(temp);
                 });
@@ -215,3 +216,27 @@ app.get("/updateVideos",(req,res)=>{
         database.ref("/general").set({"NoofVideos" : allvideos.numChildren()})
     });
 });
+
+function convertTime(element) {
+    let time = element.toString().slice(2,);
+    let collector= "";
+    let coll= "";
+    for(var i=0;time.length>i;i++){
+        if(time.charAt(i)=='H'||time.charAt(i)=='S'||time.charAt(i)=='M'){
+            if(collector==""){
+                if(coll.length==1)
+                    coll = "0"+coll;
+                collector = coll;
+                coll = "";
+                continue;
+            }
+            if(coll.length==1)
+                coll = "0"+coll;
+            collector =  collector +':'   + coll;
+            coll="";
+            continue;
+        }
+        coll=coll + time.charAt(i);
+    }
+    return collector;
+}
