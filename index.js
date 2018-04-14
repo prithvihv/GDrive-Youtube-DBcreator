@@ -59,13 +59,14 @@ app.listen(process.env.PORT || 3000, () => {
             console.log("db cleared");
             indexArrayVideos = 0;
         });
-        res.status(200).write("done");
+        res.send("Cleared DB");
     });
 }
 //END test routes-----------------------------------------------------------//
 
 //START Videos routes---------------------------------------------------------//
 app.get('/listvideo', (req, res) => {
+    res.send("writing to videos to db");
     playlistitemTHING.processRequest(function again(err, data, token) {
         if (err)
             res.status(200).write("error");
@@ -102,8 +103,7 @@ app.get('/listvideo', (req, res) => {
                     else {
                         console.log("done da u chill now");
                         indexArrayVideos=0;
-                        res.status(200).write("writing vidoes......");
-                        return
+                        return;
                     }
                 }
             } else {
@@ -111,7 +111,6 @@ app.get('/listvideo', (req, res) => {
                 console.log(callnumber)
             }
         }
-
     }, null, ArrayChannelVideos[indexArrayVideos]);
 });
 
@@ -135,7 +134,7 @@ app.get('/getVTime', (req, res) => {
             });
         }, ArrayVideos);
     });
-    res.status(200).send("Updating database.......");
+    res.send("Writing time to every video");
 });
 //END VideosTimeQuerying routes---------------------------------------------------------//
 
@@ -159,7 +158,7 @@ app.get("/playlist", (req, res) => {
             }
         }, ArrayPlaylist[i]);
     }
-    res.status(200).write("done writing playlists");
+    res.send("Writing playlists");
 
 });
 //video.snippet.resourceId.videoId, video.snippet.playlistId
@@ -172,9 +171,9 @@ app.get("/countallVideos",(req,res)=>{
         console.log(allvideos.numChildren());
         database.ref("/general").set({"NoofVideos" : allvideos.numChildren()})
     });
+    res.send("counting videos");
 });
 app.get("/EachChannel",(req,res)=>{
-    console.log("Server hit");
     playlistitemTHING.processRequest(function again(err, data, token) {
         if (err)
             res.status(200).write("error");
@@ -191,8 +190,8 @@ app.get("/EachChannel",(req,res)=>{
             });
 
         }
-        res.status(200).write("writing vidoes......");
     }, null, ArrayChannelVideos[indexArrayVideos]);
+    res.send("counting each channel videos");
 
 });
 
