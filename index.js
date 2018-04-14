@@ -68,6 +68,7 @@ app.listen(process.env.PORT || 3000, () => {
 app.get('/listvideo', (req, res) => {
     res.send("writing to videos to db");
     playlistitemTHING.processRequest(function again(err, data, token) {
+        indexArrayVideos=0;
         if (err)
             res.status(200).write("error");
         else {
@@ -127,9 +128,9 @@ app.get('/getVTime', (req, res) => {
         console.log(ArrayVideos.length);
         videoTime.getVid(function (data) {
             data["items"].forEach((item) => {
-                temp = {
+                let temp = {
                     "duration": convertTime(item["contentDetails"]["duration"])
-                }
+                };
                 database.ref("/allvideos/" + item['id']).update(temp);
             });
         }, ArrayVideos);
@@ -173,24 +174,25 @@ app.get("/countallVideos",(req,res)=>{
     });
     res.send("counting videos");
 });
-app.get("/EachChannel",(req,res)=>{
+app.get("/countEachChannel",(req,res)=>{
+    var channelCounter=0;
     playlistitemTHING.processRequest(function again(err, data, token) {
         if (err)
             res.status(200).write("error");
         else {
-            var a= ArrayChannelVideos[indexArrayVideos];
+            var a= ArrayChannelVideos[channelCounter];
             var b= data["pageInfo"]["totalResults"];
             let temp ={};
             temp[a]=b;
             database.ref("general/channels").update(temp).then(()=>{
-                if (indexArrayVideos < ArrayChannelVideos.length) {
-                    indexArrayVideos++;
-                    playlistitemTHING.processRequest(again, null, ArrayChannelVideos[indexArrayVideos]);
+                if (channelCounter < ArrayChannelVideos.length) {
+                    channelCounter++;
+                    playlistitemTHING.processRequest(again, null, ArrayChannelVideos[channelCounter]);
                 }
             });
 
         }
-    }, null, ArrayChannelVideos[indexArrayVideos]);
+    }, null, ArrayChannelVideos[channelCounter]);
     res.send("counting each channel videos");
 
 });
