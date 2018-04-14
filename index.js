@@ -101,7 +101,6 @@ function RouteAllvideos(){
                             playlistitemTHING.processRequest(again, null, ArrayChannelVideos[indexArrayVideos]);
                         else {
                             console.log("done da u chill now");
-                            resolve();
                         }
                     }
                 }
@@ -169,7 +168,7 @@ function RouteCountallVideos(){
     return new Promise((resolve,reject)=>{
         database.ref("/allvideos").once('value').then(function (allvideos) {
             console.log(allvideos.numChildren());
-            database.ref("/general").update({"NoofVideos" : allvideos.numChildren()}).then(()=>{resolve()});
+            database.ref("/").update({"VideoCount" : allvideos.numChildren()}).then(()=>{resolve()});
         })
     })
 }
@@ -204,6 +203,7 @@ app.get("/countEachChannel",(req,res)=>{
                                     console.log("Playlists updated");
                                     RouteCountallVideos().then(()=>{
                                         console.log("Counted videos")
+                                        database.ref("general/channels").set(temp);
                                     });
                                 });
                             });

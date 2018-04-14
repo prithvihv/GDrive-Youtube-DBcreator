@@ -13,36 +13,7 @@ admin.initializeApp({
 });
 //admin.initializeApp(functions.config().firebase);
 
-exports.ChannelCounttrigger = functions.database.ref('/general/channels')
-    .onWrite(event => {
-        const crnt = event.data.current;
-        const prev = event.data.previous;
-
-        if (crnt.val() && !prev.val()) {
-            // value created
-            console.log('Created: no notification');
-        } else if (!crnt.val() && prev.val()) {
-            // value removed
-            console.log('Removed: no push');
-        } else {
-            // value updated
-            console.log('Updated: send push notification');
-            console.log('number of videos now vs before : ',crnt.val(),prev.val() );
-            request('https://ajnode.herokuapp.com/listvideos', function (error, response, body) {
-                //make sure this is only hit when theall playlist are done writing
-                request('getVTime', function (error, response, body) {
-                    console.log("done updating");
-                    //this is intern trigger a notification
-                    request('https://ajnode.herokuapp.com/countallVideos', function (error, response, body) {
-                        console.log("updated total count");
-                    });
-                });
-            });
-        }
-    });
-
-
-exports.VideoCount = functions.database.ref('/general/NoofVideos')
+exports.VideoCount = functions.database.ref('/VideoCount')
     .onWrite(event => {
         const crnt = event.data.current;
         const prev = event.data.previous;
@@ -69,6 +40,7 @@ exports.VideoCount = functions.database.ref('/general/NoofVideos')
                     // Response is a message ID string.
                     console.log('Successfully sent message:', response);
                     response.send("done sending");
+                    return 0;
                 })
                 .catch((error) => {
                     console.log('Error sending message:', error);
