@@ -181,7 +181,6 @@ app.get("/countEachChannel",(req,res)=>{
         if (err)
             res.status(200).write("error");
         else {
-            console.log("else");
             var a= ArrayChannelVideos[channelCounter];
             var b= data["pageInfo"]["totalResults"];
             temp[a]=b;
@@ -189,12 +188,13 @@ app.get("/countEachChannel",(req,res)=>{
             if (channelCounter < ArrayChannelVideos.length) {
                 playlistitemTHING.processRequest(again, null, ArrayChannelVideos[channelCounter]);
             }else{
-                console.log(temp);
                 database.ref("general/channels").once("value").then(datasnap=>{
-                    console.log(datasnap.val());
                     if(deepEqual(datasnap.val(),temp)){
                         res.send("no updates");
+                        console.log("no updates");
                     }else{
+                        console.log("running updates");
+                        database.ref("general/channels").set(temp);
                         RouteAllvideos().then(()=>{
                             console.log("Video data writen");
                             RouteVideTime().then(()=>{
@@ -202,8 +202,7 @@ app.get("/countEachChannel",(req,res)=>{
                                 Routeplaylist().then(()=>{
                                     console.log("Playlists updated");
                                     RouteCountallVideos().then(()=>{
-                                        console.log("Counted videos")
-                                        database.ref("general/channels").set(temp);
+                                        console.log("Counted videos");
                                     });
                                 });
                             });
