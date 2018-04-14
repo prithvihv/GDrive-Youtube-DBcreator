@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.4",
+    "deep-equal": "^1.0.1",
     "express": "^4.16.2",
     "firebase": "^4.9.0",
     "firebase-admin": "^5.11.0",

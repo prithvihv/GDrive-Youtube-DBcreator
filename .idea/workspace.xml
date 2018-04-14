@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="38e4d260-f2ad-4b60-a71e-e7b982add421" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/playlistitemTHING.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/playlistitemTHING.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/videoT.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/videoT.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -22,8 +26,8 @@
       <file leaf-file-name="playlistitemTHING.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/playlistitemTHING.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="245">
-              <caret line="109" column="4" selection-start-line="109" selection-start-column="4" selection-end-line="109" selection-end-column="4" />
+            <state relative-caret-position="470">
+              <caret line="202" column="21" selection-start-line="202" selection-start-column="8" selection-end-line="202" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -31,7 +35,7 @@
       <file leaf-file-name="playlist.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/playlist.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18">
+            <state relative-caret-position="180">
               <caret line="34" column="45" selection-start-line="34" selection-start-column="45" selection-end-line="34" selection-end-column="45" />
             </state>
           </provider>
@@ -40,7 +44,7 @@
       <file leaf-file-name="process.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/process.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1242">
+            <state relative-caret-position="-36">
               <caret line="69" column="51" selection-start-line="69" selection-start-column="51" selection-end-line="69" selection-end-column="51" />
             </state>
           </provider>
@@ -49,8 +53,8 @@
       <file leaf-file-name="videoT.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/videoT.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2358">
-              <caret line="131" column="35" selection-start-line="131" selection-start-column="35" selection-end-line="131" selection-end-column="35" />
+            <state relative-caret-position="198">
+              <caret line="124" column="48" lean-forward="true" selection-start-line="124" selection-start-column="48" selection-end-line="124" selection-end-column="48" />
             </state>
           </provider>
         </entry>
@@ -67,8 +71,8 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="193" column="38" selection-start-line="193" selection-start-column="38" selection-end-line="193" selection-end-column="38" />
+            <state relative-caret-position="299">
+              <caret line="207" column="35" selection-start-line="207" selection-start-column="35" selection-end-line="207" selection-end-column="35" />
               <folding>
                 <element signature="n#!!block;n#convertTime#0" />
               </folding>
@@ -79,8 +83,8 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/functions/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="21" column="28" lean-forward="true" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="28" />
+            <state relative-caret-position="468">
+              <caret line="44" column="10" selection-start-line="44" selection-start-column="10" selection-end-line="44" selection-end-column="10" />
             </state>
           </provider>
         </entry>
@@ -89,13 +93,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>res.status(200).write(&quot;DONE&quot;);</find>
-      <find>var</find>
-      <find>devare</find>
-      <find>readline</find>
-      <find />
-      <find>A[it</find>
-      <find />
       <find>data</find>
       <find>callback</find>
       <find>let</find>
@@ -103,7 +100,7 @@
       <find>push</find>
       <find>functions</find>
       <find>config</find>
-      <find />
+      <find>the api re</find>
       <find>processing</find>
       <find>playlistsListByChannelId</find>
       <find>callbackindex</find>
@@ -112,13 +109,20 @@
       <find>indexArrayVideos</find>
       <find>allvideos</find>
       <find>total</find>
-      <find />
+      <find>done da</find>
       <find>console.log</find>
       <find>rotate</find>
       <find>element</find>
       <find>RmznBCICv9YtgWaaa_nWDIH1_GM/BR6haWyXaVMtw7vwl1PZ12MX1yI</find>
       <find>RmznBCICv9YtgWaaa_nWDIH1_GM</find>
       <find>res</find>
+      <find>once</find>
+      <find>no token</find>
+      <find>next</find>
+      <find>callnumber</find>
+      <find>lengt</find>
+      <find>RouteVideTimeRouteVideTime</find>
+      <find>callbackIndex</find>
     </findStrings>
     <replaceStrings>
       <replace>let</replace>
@@ -139,11 +143,11 @@
         <option value="$PROJECT_DIR$/firebase.json" />
         <option value="$PROJECT_DIR$/routes/package.json" />
         <option value="$PROJECT_DIR$/package.json" />
-        <option value="$PROJECT_DIR$/routes/playlistitemTHING.js" />
         <option value="$PROJECT_DIR$/routes/process.js" />
         <option value="$PROJECT_DIR$/routes/playlist.js" />
-        <option value="$PROJECT_DIR$/routes/videoT.js" />
         <option value="$PROJECT_DIR$/functions/index.js" />
+        <option value="$PROJECT_DIR$/routes/playlistitemTHING.js" />
+        <option value="$PROJECT_DIR$/routes/videoT.js" />
         <option value="$PROJECT_DIR$/index.js" />
       </list>
     </option>
@@ -293,7 +297,7 @@
       <workItem from="1522944816141" duration="7140000" />
       <workItem from="1523088345915" duration="24883000" />
       <workItem from="1523636737936" duration="65000" />
-      <workItem from="1523637024517" duration="6331000" />
+      <workItem from="1523637024517" duration="17854000" />
     </task>
     <task id="LOCAL-00001" summary="ide changes">
       <created>1521785559535</created>
@@ -351,11 +355,32 @@
       <option name="project" value="LOCAL" />
       <updated>1523641357702</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="res added to each route">
+      <created>1523680054117</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1523680054117</updated>
+    </task>
+    <task id="LOCAL-00010" summary="res added to each route">
+      <created>1523680229356</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1523680229356</updated>
+    </task>
+    <task id="LOCAL-00011" summary="local variable and route changes">
+      <created>1523681705925</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1523681705925</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="73493000" />
+    <option name="totallyTimeSpent" value="85016000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="32" width="1616" height="876" extended-state="6" />
@@ -367,9 +392,9 @@
       <window_info anchor="bottom" id="Event Log" order="5" side_tool="true" weight="0.3297414" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info id="npm" order="2" sideWeight="0.50643086" side_tool="true" weight="0.2203125" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.36005256" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.36005256" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.5034388" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.50328517" />
       <window_info id="Favorites" order="3" sideWeight="0.51077586" side_tool="true" weight="0.2203125" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39684626" />
       <window_info anchor="bottom" id="TypeScript" order="4" />
@@ -420,7 +445,9 @@
     <MESSAGE value="notifications and full" />
     <MESSAGE value="recommit" />
     <MESSAGE value="some changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="some changes" />
+    <MESSAGE value="res added to each route" />
+    <MESSAGE value="local variable and route changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="local variable and route changes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -435,51 +462,11 @@
           <line>171</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/routes/videoT.js</url>
-          <line>124</line>
-          <option name="timeStamp" value="120" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/routes/videoT.js</url>
-          <line>45</line>
-          <option name="timeStamp" value="124" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/routes/videoT.js</url>
-          <line>50</line>
-          <option name="timeStamp" value="125" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/routes/videoT.js</url>
-          <line>56</line>
-          <option name="timeStamp" value="126" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/routes/videoT.js</url>
-          <line>108</line>
-          <option name="timeStamp" value="127" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/routes/videoT.js</url>
-          <line>115</line>
-          <option name="timeStamp" value="128" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/routes/videoT.js</url>
-          <line>135</line>
-          <option name="timeStamp" value="129" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/routes/videoT.js</url>
-          <line>116</line>
-          <option name="timeStamp" value="130" />
-        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="146" />
+      <option name="time" value="167" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -642,45 +629,45 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/routes/process.js">
+    <entry file="file://$PROJECT_DIR$/functions/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1242">
-          <caret line="69" column="51" selection-start-line="69" selection-start-column="51" selection-end-line="69" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/videoT.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2358">
-          <caret line="131" column="35" selection-start-line="131" selection-start-column="35" selection-end-line="131" selection-end-column="35" />
+        <state relative-caret-position="468">
+          <caret line="44" column="10" selection-start-line="44" selection-start-column="10" selection-end-line="44" selection-end-column="10" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/playlist.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
+        <state relative-caret-position="180">
           <caret line="34" column="45" selection-start-line="34" selection-start-column="45" selection-end-line="34" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/process.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-36">
+          <caret line="69" column="51" selection-start-line="69" selection-start-column="51" selection-end-line="69" selection-end-column="51" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/playlistitemTHING.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="109" column="4" selection-start-line="109" selection-start-column="4" selection-end-line="109" selection-end-column="4" />
+        <state relative-caret-position="470">
+          <caret line="202" column="21" selection-start-line="202" selection-start-column="8" selection-end-line="202" selection-end-column="21" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/functions/index.js">
+    <entry file="file://$PROJECT_DIR$/routes/videoT.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="21" column="28" lean-forward="true" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="28" />
+        <state relative-caret-position="198">
+          <caret line="124" column="48" lean-forward="true" selection-start-line="124" selection-start-column="48" selection-end-line="124" selection-end-column="48" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="193" column="38" selection-start-line="193" selection-start-column="38" selection-end-line="193" selection-end-column="38" />
+        <state relative-caret-position="299">
+          <caret line="207" column="35" selection-start-line="207" selection-start-column="35" selection-end-line="207" selection-end-column="35" />
           <folding>
             <element signature="n#!!block;n#convertTime#0" />
           </folding>

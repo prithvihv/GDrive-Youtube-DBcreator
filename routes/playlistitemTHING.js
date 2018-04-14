@@ -42,7 +42,6 @@ var processRequest = function (callbackIndex, token, playlistChannel) {
             param.params.pageToken = token;
         }else{
             console.log("no token ", playlistChannel);
-            console.log(param);
         }
         // Authorize a client with the loaded credentials, then call the YouTube API.
         //See full code sample for authorize() function code.
@@ -200,7 +199,6 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackIndex) {
             console.log('The API returned an errorrrrrrr: ' + err);
             return;
         }
-        console.log(response.pageInfo);
         //console.log("got response re routing");
         callbackIndex(false, response, response['nextPageToken']);
     });

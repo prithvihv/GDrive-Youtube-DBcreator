@@ -112,28 +112,21 @@ function videosListById(auth, requestData, callbackIndex) {
     parameters['auth'] = auth;
 
     // Check if we have previously stored a token.
-    var i=0;
-        function repeat(i){
-            console.log(i);
-            parameters['id'] =  (list_IDvideos.splice(0, 50)).toString();
+    (function repeat(){
 
-            service.videos.list(parameters, function (err, response) {
-                if (err) {
-                    console.log('The API returned an error: ' + err);
-                    return;
-                }
-                console.log(response);
-                //repeat(i+response["page"])
-                callbackIndex(response);
+                parameters['id'] =  (list_IDvideos.splice(0, 50)).toString();
 
-                    if(list_IDvideos>i+response["pageInfo"]["totalResults"])
-                        repeat(i+response["pageInfo"]["totalResults"])
-                    if(list_IDvideos==i+response)
-                            return;
-                repeat(i+response["pageInfo"]["totalResults"])
-            });
-        }
-        repeat(i);
+                service.videos.list(parameters, function (err, response) {
+                    if (err) {
+                        console.log('The API returned an error: ' + err);
+                        return;
+                    }
+                    callbackIndex(response,list_IDvideos.length);
+                    console.log(list_IDvideos.length);
+                    if(list_IDvideos.length>0)
+                        repeat();
+                });
+    })()
 }
 
 module.exports = {
