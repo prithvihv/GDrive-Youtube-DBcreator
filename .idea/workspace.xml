@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="38e4d260-f2ad-4b60-a71e-e7b982add421" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/functions/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/functions/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/functions/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -70,12 +67,9 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="191">
-              <caret line="87" column="33" selection-start-line="87" selection-start-column="33" selection-end-line="87" selection-end-column="33" />
+            <state relative-caret-position="420">
+              <caret line="193" column="38" selection-start-line="193" selection-start-column="38" selection-end-line="193" selection-end-column="38" />
               <folding>
-                <element signature="e#1418#1811#0" />
-                <element signature="e#4728#5448#0" />
-                <element signature="e#5561#6326#0" />
                 <element signature="n#!!block;n#convertTime#0" />
               </folding>
             </state>
@@ -85,8 +79,8 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/functions/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="15" column="69" selection-start-line="15" selection-start-column="69" selection-end-line="15" selection-end-column="69" />
+            <state relative-caret-position="162">
+              <caret line="21" column="28" lean-forward="true" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -95,14 +89,13 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>res.status(200).write(&quot;DONE&quot;)</find>
       <find>res.status(200).write(&quot;DONE&quot;);</find>
       <find>var</find>
       <find>devare</find>
       <find>readline</find>
-      <find>error loading</find>
+      <find />
       <find>A[it</find>
-      <find>the api</find>
+      <find />
       <find>data</find>
       <find>callback</find>
       <find>let</find>
@@ -110,7 +103,7 @@
       <find>push</find>
       <find>functions</find>
       <find>config</find>
-      <find>the api re</find>
+      <find />
       <find>processing</find>
       <find>playlistsListByChannelId</find>
       <find>callbackindex</find>
@@ -119,12 +112,13 @@
       <find>indexArrayVideos</find>
       <find>allvideos</find>
       <find>total</find>
-      <find>done da</find>
+      <find />
       <find>console.log</find>
       <find>rotate</find>
       <find>element</find>
       <find>RmznBCICv9YtgWaaa_nWDIH1_GM/BR6haWyXaVMtw7vwl1PZ12MX1yI</find>
       <find>RmznBCICv9YtgWaaa_nWDIH1_GM</find>
+      <find>res</find>
     </findStrings>
     <replaceStrings>
       <replace>let</replace>
@@ -179,10 +173,10 @@
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="2609" />
-    <option name="y" value="-30" />
-    <option name="width" value="1616" />
-    <option name="height" value="876" />
+    <option name="x" value="-495" />
+    <option name="y" value="128" />
+    <option name="width" value="1613" />
+    <option name="height" value="906" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -252,7 +246,7 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="Settings.JavaScript" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -299,7 +293,7 @@
       <workItem from="1522944816141" duration="7140000" />
       <workItem from="1523088345915" duration="24883000" />
       <workItem from="1523636737936" duration="65000" />
-      <workItem from="1523637024517" duration="4296000" />
+      <workItem from="1523637024517" duration="6331000" />
     </task>
     <task id="LOCAL-00001" summary="ide changes">
       <created>1521785559535</created>
@@ -350,17 +344,24 @@
       <option name="project" value="LOCAL" />
       <updated>1523298053578</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="some changes">
+      <created>1523641357702</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1523641357702</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="71458000" />
+    <option name="totallyTimeSpent" value="73493000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1912" y="32" width="1616" height="876" extended-state="6" />
+    <frame x="-8" y="32" width="1616" height="876" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48922414" visible="true" weight="0.20125" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48922414" visible="true" weight="0.20125" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="5" side_tool="true" weight="0.3297414" />
@@ -368,7 +369,7 @@
       <window_info id="npm" order="2" sideWeight="0.50643086" side_tool="true" weight="0.2203125" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.36005256" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.48094612" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.5034388" />
       <window_info id="Favorites" order="3" sideWeight="0.51077586" side_tool="true" weight="0.2203125" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39684626" />
       <window_info anchor="bottom" id="TypeScript" order="4" />
@@ -418,7 +419,8 @@
     <MESSAGE value="trying to deploy reinitial everything" />
     <MESSAGE value="notifications and full" />
     <MESSAGE value="recommit" />
-    <option name="LAST_COMMIT_MESSAGE" value="recommit" />
+    <MESSAGE value="some changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="some changes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -477,7 +479,7 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="142" />
+      <option name="time" value="146" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -670,19 +672,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/functions/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="15" column="69" selection-start-line="15" selection-start-column="69" selection-end-line="15" selection-end-column="69" />
+        <state relative-caret-position="162">
+          <caret line="21" column="28" lean-forward="true" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="87" column="33" selection-start-line="87" selection-start-column="33" selection-end-line="87" selection-end-column="33" />
+        <state relative-caret-position="420">
+          <caret line="193" column="38" selection-start-line="193" selection-start-column="38" selection-end-line="193" selection-end-column="38" />
           <folding>
-            <element signature="e#1418#1811#0" />
-            <element signature="e#4728#5448#0" />
-            <element signature="e#5561#6326#0" />
             <element signature="n#!!block;n#convertTime#0" />
           </folding>
         </state>
