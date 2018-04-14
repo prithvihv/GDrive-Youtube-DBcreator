@@ -101,6 +101,7 @@ function RouteAllvideos(){
                             playlistitemTHING.processRequest(again, null, ArrayChannelVideos[indexArrayVideos]);
                         else {
                             console.log("done da u chill now");
+                            resolve();
                         }
                     }
                 }
