@@ -85,7 +85,7 @@ function RouteAllvideos(){
                         var temp = {};
                         temp["title"] = video.snippet.title;
                         temp["videoID"] = video.snippet.resourceId.videoId;
-                        temp["publishedAt"] = (new Date(video.snippet.publishedAt).toString()).slice(0,11);
+                        temp["publishedAt"] =formatDate((video.snippet.publishedAt).slice(0,11));
                         temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
 
                         database.ref("allvideos/" + video.snippet.resourceId.videoId).set(temp).then(() => {
@@ -258,4 +258,12 @@ function convertTime(element) {
         coll=coll + time.charAt(i);
     }
     return collector;
+}
+
+function formatDate (input) {
+    var datePart = input.match(/\d+/g),
+        year = datePart[0].substring(2), // get only two digits
+        month = datePart[1], day = datePart[2];
+
+    return day+'/'+month+'/'+year;
 }
