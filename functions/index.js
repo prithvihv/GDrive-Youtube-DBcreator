@@ -24,14 +24,13 @@ exports.VideoCount = functions.database.ref('/VideoCount')
         } else if (!crnt.val() && prev.val()) {
             // value removed
             console.log('Removed: no push');
-        } else {
-            // value updated
-            console.log('Updated: send push notification');
-            console.log('number of videos now vs before : ',crnt.val(),prev.val() );
+        } else {           
+            var NumberOfNewVideos = crnt.val() - prev.val();
+            console.log(NumberOfNewVideos)
             var message = {
                 notification: {
-                    title: "Prabuji",
-                    body: "New talk"
+                    title: "Prabuji's Talk",
+                    body: NumberOfNewVideos + NumberOfNewVideos==1?"New talk":"New talks"
                 },
                 topic: "global"
             };
