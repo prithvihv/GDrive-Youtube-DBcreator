@@ -44,7 +44,18 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Api up and running");
-    RouteAllvideos();
+    RouteAllvideos().then(()=>{
+        console.log("Video data writen");
+        RouteVideTime().then(()=>{
+            console.log("Video Time writen");
+            Routeplaylist().then(()=>{
+                console.log("Playlists updated");
+                RouteCountallVideos().then(()=>{
+                    console.log("Counted videos");
+                });
+            });
+        });
+    });
 });
 
 //START test routes----------------------------------------------------------//
@@ -174,7 +185,7 @@ function RouteCountallVideos(){
     return new Promise((resolve,reject)=>{
         database.ref("/allvideos").once('value').then(function (allvideos) {
             console.log(allvideos.numChildren());
-            database.ref("/").update({"VideoCount" : allvideos.numChildren()}).then(()=>{resolve()});
+            database.ref("/General/VideoCount_ByYoutubeBOT").set(allvideos.numChildren()).then(()=>{resolve()});
         })
     })
 }
