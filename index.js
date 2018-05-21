@@ -7,12 +7,12 @@ var deepEqual = require('deep-equal');
 //const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 let config = {
-    apiKey: "AIzaSyAufTAIIp28e8nJL_Ek1DeDxuCEJKJHKI4",
-    authDomain: "ajapp-192505.firebaseapp.com",
-    databaseURL: "https://ajapp-192505.firebaseio.com",
-    projectId: "ajapp-192505",
-    storageBucket: "ajapp-192505.appspot.com",
-    messagingSenderId: "512241350585"
+    apiKey: "AIzaSyAXdXbpCL9ZSKWJEuwuryDCGlLL7X2GEEk",
+    authDomain: "ajchannelmoyo.firebaseapp.com",
+    databaseURL: "https://ajchannelmoyo.firebaseio.com",
+    projectId: "ajchannelmoyo",
+    storageBucket: "ajchannelmoyo.appspot.com",
+    messagingSenderId: "331893248834"
 };
 const firebase = require('firebase');
 firebase.initializeApp(config);
@@ -44,6 +44,7 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Api up and running");
+    RouteAllvideos();
 });
 
 //START test routes----------------------------------------------------------//
@@ -82,14 +83,19 @@ function RouteAllvideos(){
                     // //RmznBCICv9YtgWaaa_nWDIH1_GM/aCPN8aEhuu_1FTi6BnVImg0aiz0
                     // return;
                     data["items"].forEach(video => {
+                        console.log(video.snippet);
                         var temp = {};
                         temp["title"] = video.snippet.title;
+                        temp["published"] = 0;
+                        temp["thumbnail"] = video.snippet.thumbnails.maxres||video.snippet.thumbnails.standard||video.snippet.thumbnails.high;
                         temp["videoID"] = video.snippet.resourceId.videoId;
-                        temp["publishedAt"] =formatDate((video.snippet.publishedAt).slice(0,11));
+                        temp["publishedAt"] = video.snippet.publishedAt;
                         temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
-
-                        database.ref("allvideos/" + video.snippet.resourceId.videoId).set(temp).then(() => {
-                            // console.log("video written title and id is :" + temp.title + " : " + temp.publishedAt +" : call number is : " + callnumber);
+                        database.ref("allvideos/"+video.snippet.resourceId.videoId).once('value').then((value)=>{
+                            if(value==null){
+                                console.log("Data written");
+                                database.ref("allvideos/").child(video.snippet.resourceId.videoId).set(temp);
+                            }
                         });
                     });
                     if (token != null || token !== undefined) {
@@ -164,7 +170,6 @@ function Routeplaylist(){
 }
 //video.snippet.resourceId.videoId, video.snippet.playlistId
 //END PlaylistsAndVideos routes---------------------------------------------------------/
-
 function RouteCountallVideos(){
     return new Promise((resolve,reject)=>{
         database.ref("/allvideos").once('value').then(function (allvideos) {
@@ -173,7 +178,6 @@ function RouteCountallVideos(){
         })
     })
 }
-
 //Counter videoroutes
 app.get("/countEachChannel",(req,res)=>{
     var channelCounter=0;
@@ -219,10 +223,6 @@ app.get("/countEachChannel",(req,res)=>{
 
 
 });
-
-
-
-
 function writevideoDetails(video,data) {
     database.ref("allvideos/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
         var temp = dataSnap.val();
@@ -233,9 +233,6 @@ function writevideoDetails(video,data) {
 function writeExtraDetails(data){
     database.ref("playlists/" + data.playlistid).update({"title":data.title,"noofvideos":data.pageInfo.totalResults,"playlist":data.playlistid});
 }
-
-
-
 function convertTime(element) {
     let time = element.toString().slice(2,);
     let collector= "";
@@ -259,7 +256,6 @@ function convertTime(element) {
     }
     return collector;
 }
-
 function formatDate (input) {
     var datePart = input.match(/\d+/g),
         year = datePart[0].substring(2), // get only two digits
@@ -267,3 +263,4 @@ function formatDate (input) {
 
     return day+'/'+month+'/'+year;
 }
+
