@@ -175,6 +175,7 @@ function RouteCountallVideos() {
 }
 //force to populate db
 app.get("/forceUpdate", (req, res) => {
+    res.send("Updating database");
     RouteAllvideos().then(() => {
         console.log("Video data writen");
         RouteVideTime().then(() => {
