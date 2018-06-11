@@ -66,9 +66,9 @@ app.listen(process.env.PORT || 3000, () => {
 //END test routes-----------------------------------------------------------//
 
 //START Videos routes---------------------------------------------------------//
-function RouteAllvideos(){
-    indexArrayVideos=0;
-    return new Promise((resolve,reject)=>{
+function RouteAllvideos() {
+    indexArrayVideos = 0;
+    return new Promise((resolve, reject) => {
         playlistitemTHING.processRequest(function again(err, data, token) {
             if (err)
                 res.status(200).write("error");
@@ -85,7 +85,7 @@ function RouteAllvideos(){
                         var temp = {};
                         temp["title"] = video.snippet.title;
                         temp["videoID"] = video.snippet.resourceId.videoId;
-                        temp["publishedAt"] =formatDate((video.snippet.publishedAt).slice(0,11));
+                        temp["publishedAt"] = formatDate((video.snippet.publishedAt).slice(0, 11));
                         temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
 
                         database.ref("allvideos/" + video.snippet.resourceId.videoId).set(temp).then(() => {
@@ -113,16 +113,16 @@ function RouteAllvideos(){
 //END Videos routes---------------------------------------------------------//
 
 //START VideosTimeQuerying routes---------------------------------------------------------//
-function RouteVideTime(){
-    var flag=true;
-    return new Promise((resolve,reject)=>{
+function RouteVideTime() {
+    var flag = true;
+    return new Promise((resolve, reject) => {
         database.ref("/allvideos").once('value').then(function (allvideos) {
             allvideos.forEach(video => {
                 ArrayVideos.push(video.child("videoID").val());
             });
-        }).then(()=>{
+        }).then(() => {
             console.log(resolve);
-            videoTime.getVid(function (data,videolenth) {
+            videoTime.getVid(function (data, videolenth) {
                 data["items"].forEach((item) => {
                     let temp = {
                         "duration": convertTime(item["contentDetails"]["duration"])
@@ -130,9 +130,9 @@ function RouteVideTime(){
                     database.ref("/allvideos/" + item['id']).update(temp);
                 });
                 console.log(videolenth);
-                if(videolenth==0&&flag){
+                if (videolenth == 0 && flag) {
                     resolve();
-                    flag=false;
+                    flag = false;
                 }
             }, ArrayVideos);
         });
@@ -141,9 +141,9 @@ function RouteVideTime(){
 //END VideosTimeQuerying routes---------------------------------------------------------//
 
 //START PlaylistsAndVideos routes---------------------------------------------------------//
-function Routeplaylist(){
-    return new Promise((resolve,reject)=>{
-        ArrayPlaylist.forEach(playlistID=>{
+function Routeplaylist() {
+    return new Promise((resolve, reject) => {
+        ArrayPlaylist.forEach(playlistID => {
             playlist.processRequest(function again(err, data, token) {
                 if (err)
                     console.log("error");
@@ -154,7 +154,7 @@ function Routeplaylist(){
                     }
                     writeExtraDetails(data);
                     data.items.forEach(video => {
-                        writevideoDetails(video,data);
+                        writevideoDetails(video, data);
                     });
                 }
             }, playlistID);
@@ -165,44 +165,59 @@ function Routeplaylist(){
 //video.snippet.resourceId.videoId, video.snippet.playlistId
 //END PlaylistsAndVideos routes---------------------------------------------------------/
 
-function RouteCountallVideos(){
-    return new Promise((resolve,reject)=>{
+function RouteCountallVideos() {
+    return new Promise((resolve, reject) => {
         database.ref("/allvideos").once('value').then(function (allvideos) {
             console.log(allvideos.numChildren());
-            database.ref("/").update({"VideoCount" : allvideos.numChildren()}).then(()=>{resolve()});
+            database.ref("/").update({ "VideoCount": allvideos.numChildren() }).then(() => { resolve() });
         })
     })
 }
+//force to populate db
+app.get("/forceUpdate", (req, res) => {
+    RouteAllvideos().then(() => {
+        console.log("Video data writen");
+        RouteVideTime().then(() => {
+            console.log("Video Time writen");
+            Routeplaylist().then(() => {
+                console.log("Playlists updated");
+                RouteCountallVideos().then(() => {
+                    console.log("Counted videos");
+                });
+            });
+        });
+    });
+});
 
 //Counter videoroutes
-app.get("/countEachChannel",(req,res)=>{
-    var channelCounter=0;
-    let temp ={};
+app.get("/countEachChannel", (req, res) => {
+    var channelCounter = 0;
+    let temp = {};
     playlistitemTHING.processRequest(function again(err, data, token) {
         if (err)
             res.status(200).write("error");
         else {
-            var a= ArrayChannelVideos[channelCounter];
-            var b= data["pageInfo"]["totalResults"];
-            temp[a]=b;
+            var a = ArrayChannelVideos[channelCounter];
+            var b = data["pageInfo"]["totalResults"];
+            temp[a] = b;
             channelCounter++;
             if (channelCounter < ArrayChannelVideos.length) {
                 playlistitemTHING.processRequest(again, null, ArrayChannelVideos[channelCounter]);
-            }else{
-                database.ref("general/channels").once("value").then(datasnap=>{
-                    if(deepEqual(datasnap.val(),temp)){
+            } else {
+                database.ref("general/channels").once("value").then(datasnap => {
+                    if (deepEqual(datasnap.val(), temp)) {
                         res.send("no updates");
                         console.log("no updates");
-                    }else{
+                    } else {
                         console.log("running updates");
                         database.ref("general/channels").set(temp);
-                        RouteAllvideos().then(()=>{
+                        RouteAllvideos().then(() => {
                             console.log("Video data writen");
-                            RouteVideTime().then(()=>{
+                            RouteVideTime().then(() => {
                                 console.log("Video Time writen");
-                                Routeplaylist().then(()=>{
+                                Routeplaylist().then(() => {
                                     console.log("Playlists updated");
-                                    RouteCountallVideos().then(()=>{
+                                    RouteCountallVideos().then(() => {
                                         console.log("Counted videos");
                                     });
                                 });
@@ -223,47 +238,47 @@ app.get("/countEachChannel",(req,res)=>{
 
 
 
-function writevideoDetails(video,data) {
+function writevideoDetails(video, data) {
     database.ref("allvideos/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
         var temp = dataSnap.val();
         database.ref("playlists/" + video.snippet.playlistId + "/videos/" + video.snippet.resourceId.videoId).set(temp).then(value => {
         });
     });
 }
-function writeExtraDetails(data){
-    database.ref("playlists/" + data.playlistid).update({"title":data.title,"noofvideos":data.pageInfo.totalResults,"playlist":data.playlistid});
+function writeExtraDetails(data) {
+    database.ref("playlists/" + data.playlistid).update({ "title": data.title, "noofvideos": data.pageInfo.totalResults, "playlist": data.playlistid });
 }
 
 
 
 function convertTime(element) {
-    let time = element.toString().slice(2,);
-    let collector= "";
-    let coll= "";
-    for(var i=0;time.length>i;i++){
-        if(time.charAt(i)=='H'||time.charAt(i)=='S'||time.charAt(i)=='M'){
-            if(collector==""){
-                if(coll.length==1)
-                    coll = "0"+coll;
+    let time = element.toString().slice(2, );
+    let collector = "";
+    let coll = "";
+    for (var i = 0; time.length > i; i++) {
+        if (time.charAt(i) == 'H' || time.charAt(i) == 'S' || time.charAt(i) == 'M') {
+            if (collector == "") {
+                if (coll.length == 1)
+                    coll = "0" + coll;
                 collector = coll;
                 coll = "";
                 continue;
             }
-            if(coll.length==1)
-                coll = "0"+coll;
-            collector =  collector +':'   + coll;
-            coll="";
+            if (coll.length == 1)
+                coll = "0" + coll;
+            collector = collector + ':' + coll;
+            coll = "";
             continue;
         }
-        coll=coll + time.charAt(i);
+        coll = coll + time.charAt(i);
     }
     return collector;
 }
 
-function formatDate (input) {
+function formatDate(input) {
     var datePart = input.match(/\d+/g),
         year = datePart[0].substring(2), // get only two digits
         month = datePart[1], day = datePart[2];
 
-    return day+'/'+month+'/'+year;
+    return day + '/' + month + '/' + year;
 }
