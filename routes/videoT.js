@@ -1,7 +1,7 @@
 
 var fs = require('fs');
 var readline = require('readline');
-var google = require('googleapis');
+const { google } = require('googleapis');
 var googleAuth = require('google-auth-library');
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
@@ -41,8 +41,7 @@ function authorize(credentials, requestData, callback, callbackIndex) {
     var clientSecret = credentials.web.client_secret;
     var clientId = credentials.web.client_id;
     var redirectUrl = credentials.web.redirect_uris[0];
-    var auth = new googleAuth();
-    var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+    var oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
     getNewToken(oauth2Client, requestData, callback, callbackIndex);
     // Check if we have previously stored a token.
 }

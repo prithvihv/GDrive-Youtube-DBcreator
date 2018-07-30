@@ -1,6 +1,6 @@
 var fs = require('fs');
 var readline = require('readline');
-var google = require('googleapis');
+const { google } = require('googleapis');
 var googleAuth = require('google-auth-library');
 
 // If modifying these scopes, delete your previously saved credentials
@@ -59,8 +59,8 @@ var processRequest = function (callbackIndex, token, playlistChannel) {
         var clientSecret = credentials.web.client_secret;
         var clientId = credentials.web.client_id;
         var redirectUrl = credentials.web.redirect_uris[0];
-        var auth = new googleAuth();
-        var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+
+        var oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
         //       Check if we have previously stored a token.
         fs.readFile(TOKEN_PATH, function (err, token) {
@@ -194,9 +194,10 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
+    console.log(parameters);
     service.playlistItems.list(parameters, function (err, response) {
         if (err) {
-            console.log('The API returned an errorrrrrrr: ' + err);
+            console.log('The API returned an errorrrrrrr (playlistitemjs): ' + err);
             return;
         }
         //console.log("got response re routing");

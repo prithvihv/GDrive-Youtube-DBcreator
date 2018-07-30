@@ -5,7 +5,7 @@ var deepEqual = require('deep-equal');
 //firebase
 
 //const functions = require('firebase-functions');
-const admin = require('firebase-admin');
+//const admin = require('firebase-admin');
 //first version database 
 // let config = {
 //     apiKey: "AIzaSyAufTAIIp28e8nJL_Ek1DeDxuCEJKJHKI4",
@@ -23,7 +23,7 @@ let config = {
     projectId: "ajappprod",
     storageBucket: "ajappprod.appspot.com",
     messagingSenderId: "485319972083"
-  };
+};
 const firebase = require('firebase');
 firebase.initializeApp(config);
 let database = firebase.database();
@@ -53,7 +53,19 @@ const app = express();
 app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
-    console.log("Api up and running");
+    // console.log("Api up and running");
+    RouteAllvideos().then(() => {
+        console.log("Video data writen");
+        RouteVideTime().then(() => {
+            console.log("Video Time writen");
+            Routeplaylist().then(() => {
+                console.log("Playlists updated");
+                RouteCountallVideos().then(() => {
+                    console.log("Counted videos");
+                });
+            });
+        });
+    });
 });
 
 //START test routes----------------------------------------------------------//
@@ -98,7 +110,7 @@ function RouteAllvideos() {
                         temp["publishedAt"] = formatDate((video.snippet.publishedAt).slice(0, 11));
                         temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
 
-                        database.ref("allvideos/" + video.snippet.resourceId.videoId).set(temp).then(() => {
+                        database.ref("AllContent/" + video.snippet.resourceId.videoId).set(temp).then(() => {
                             // console.log("video written title and id is :" + temp.title + " : " + temp.publishedAt +" : call number is : " + callnumber);
                         });
                     });
@@ -126,7 +138,7 @@ function RouteAllvideos() {
 function RouteVideTime() {
     var flag = true;
     return new Promise((resolve, reject) => {
-        database.ref("/allvideos").once('value').then(function (allvideos) {
+        database.ref("/AllContent").once('value').then(function (allvideos) {
             allvideos.forEach(video => {
                 ArrayVideos.push(video.child("videoID").val());
             });
@@ -137,7 +149,7 @@ function RouteVideTime() {
                     let temp = {
                         "duration": convertTime(item["contentDetails"]["duration"])
                     };
-                    database.ref("/allvideos/" + item['id']).update(temp);
+                    database.ref("/AllContent/" + item['id']).update(temp);
                 });
                 console.log(videolenth);
                 if (videolenth == 0 && flag) {
@@ -177,9 +189,9 @@ function Routeplaylist() {
 
 function RouteCountallVideos() {
     return new Promise((resolve, reject) => {
-        database.ref("/allvideos").once('value').then(function (allvideos) {
-            console.log(allvideos.numChildren());
-            database.ref("/").update({ "VideoCount": allvideos.numChildren() }).then(() => { resolve() });
+        database.ref("/AllContent").once('value').then(function (AllContent) {
+            console.log(AllContent.numChildren());
+            database.ref("/").update({ "VideoCount": AllContent.numChildren() }).then(() => { resolve() });
         })
     })
 }
@@ -250,18 +262,14 @@ app.get("/countEachChannel", (req, res) => {
 
 
 function writevideoDetails(video, data) {
-    database.ref("allvideos/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
+    database.ref("/AllContent/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
         var temp = dataSnap.val();
-        database.ref("playlists/" + video.snippet.playlistId + "/videos/" + video.snippet.resourceId.videoId).set(temp).then(value => {
-        });
+        database.ref("/Collections/" + video.snippet.playlistId + "/videos/" + video.snippet.resourceId.videoId).set(temp);
     });
 }
 function writeExtraDetails(data) {
     database.ref("playlists/" + data.playlistid).update({ "title": data.title, "noofvideos": data.pageInfo.totalResults, "playlist": data.playlistid });
 }
-
-
-
 function convertTime(element) {
     let time = element.toString().slice(2, );
     let collector = "";

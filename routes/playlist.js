@@ -1,6 +1,6 @@
 var request = require('request');
 var processs = require('./process');
-var google = require('googleapis');
+const { google } = require('googleapis');
 var googleAuth = require('google-auth-library');
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = "./";
@@ -20,8 +20,6 @@ var jwtClient = new google.auth.JWT(
 var currentplaylist;
 
 
-var google = require('googleapis');
-var googleAuth = require('google-auth-library');
 //const isPlaylist = require("is-playlist");
 
 
@@ -39,8 +37,7 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
     var clientSecret = credentials.web.client_secret;
     var clientId = credentials.web.client_id;
     var redirectUrl = credentials.web.redirect_uris[0];
-    var auth = new googleAuth();
-    var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+    var oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
     getNewToken(oauth2Client, requestData, callback, callbackthisFile);
 
     // Check if we have previously stored a token.
@@ -178,7 +175,7 @@ function playlistsListByChannelId(auth, requestData, callbackthisFile) {
     parameters['auth'] = auth;
     service.playlists.list(parameters, function (err, response) {
         if (err) {
-            console.log('The API returned an errorrrrrrr: ' + err);
+            console.log('The API returned an errorrrrrrr (playlistjs): ' + err);
             return;
         }
         callbackthisFile(response);
