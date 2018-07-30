@@ -30,7 +30,7 @@ let database = firebase.database();
  */
 function main() {
     getGdriveAudio().then(() => {
-        getGdrivePlaylist().then(()=>{
+        getGdrivePlaylist().then(() => {
             writemetadata();
         });
     });
@@ -90,32 +90,34 @@ function processApicall(respdata) {
  * ==> each collection data is then loaded
  */
 function getGdrivePlaylist() {
-    let objQ = {
-        corpus: 'DEFAULT',
-        includeTeamDriveItems: false,
-        q: "mimeType = 'application/vnd.google-apps.folder' and  '14-sAwJ0JzqGQtVQcyArtO7F9oX2TOUqG' in parents",
-        fields: 'items(createdDate,id,title),nextPageToken'
-    };
-    drive.files.list(objQ, (err, resp) => {
-        if (err) {
-            console.log("error from Gdrive playlist");
-            console.error(err);
-        } else {
-            let ArrayCollections = resp.data["items"];
-            let processCollectionArray = (i) => {
-                database.ref('/Collections/' + ArrayCollections[i].title + "/information").set(ArrayCollections[i]).then(() => {
-                    getGdrivePlaylistdata(ArrayCollections[i].id, ArrayCollections[i].title).then(() => {
-                        i++;
-                        if (i < ArrayCollections.length)
-                            processCollectionArray(i)
-                        else
-                            console.log("completed");
+    return new Promise((resolve, reject) => {
+        let objQ = {
+            corpus: 'DEFAULT',
+            includeTeamDriveItems: false,
+            q: "mimeType = 'application/vnd.google-apps.folder' and  '14-sAwJ0JzqGQtVQcyArtO7F9oX2TOUqG' in parents",
+            fields: 'items(createdDate,id,title),nextPageToken'
+        };
+        drive.files.list(objQ, (err, resp) => {
+            if (err) {
+                console.log("error from Gdrive playlist");
+                console.error(err);
+            } else {
+                let ArrayCollections = resp.data["items"];
+                let processCollectionArray = (i) => {
+                    database.ref('/Collections/' + ArrayCollections[i].title + "/information").set(ArrayCollections[i]).then(() => {
+                        getGdrivePlaylistdata(ArrayCollections[i].id, ArrayCollections[i].title).then(() => {
+                            i++;
+                            if (i < ArrayCollections.length)
+                                processCollectionArray(i)
+                            else
+                                resolve();
+                        });
                     });
-                });
+                }
+                processCollectionArray(0);
             }
-            processCollectionArray(0);
-        }
-    })
+        })
+    });
 }
 
 /**
@@ -142,7 +144,7 @@ function getGdrivePlaylistdata(foldID, CollectionName) {
                     console.log("running getGdriveCollectionData() : PlaylistId : " + ArrayAudiosCollections[i].id);
                     database.ref("/AllContents/" + ArrayAudiosCollections[i].id).once('value').then((iddata) => {
                         let data = iddata.val();
-                        database.ref("/Collections/" + CollectionName + "/AudioGDrive/" + data["id"]).set(data).then(() => {
+                        database.ref("/Collections/" + CollectionName + "/AllContents/" + data["id"]).set(data).then(() => {
                             i++;
                             if (i < ArrayAudiosCollections.length)
                                 processAudiosCollections(i)
@@ -162,7 +164,7 @@ function getGdrivePlaylistdata(foldID, CollectionName) {
 
 function countAudios(CollectionName) {
     return new Promise((resolve, reject) => {
-        database.ref('/Collections/' + CollectionName + '/AudioGDrive/').once('value').then((Audios) => {
+        database.ref('/Collections/' + CollectionName + '/AllConetents/').once('value').then((Audios) => {
             let countAudios = Audios.numChildren();
             database.ref('/Collections/' + CollectionName + '/information/noofAudios').set(countAudios).then(() => {
                 resolve();
@@ -177,10 +179,10 @@ function writemetadata() {
     return new Promise((resolve, reject) => {
         database.ref('/Collections').once('value').then((ContentUnits) => {
             ContentUnits.forEach((ContentUnit) => {
-                database.ref('/CollectionsMeta/' + ContentUnit.key()).set(ContentUnit.val().information).then(() => {
-                    resolve();
-                });
+                database.ref('/CollectionsMeta/' + ContentUnit.key).set(ContentUnit.val().information);
+                console.log("Processing Meta Data for : " + ContentUnit.key);
             });
+            resolve();
         });
     })
 }
