@@ -51,24 +51,24 @@ const app = express();
 app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
-    // Routeplaylist().then(() => {
-    //     console.log("Playlists updated");
-    //     RouteCountallVideos().then(() => {
-    //         console.log("Counted videos");
-    //     });
-    // });
-    RouteAllvideos().then(() => {
-        console.log("Video data writen");
-        RouteVideTime().then(() => {
-            console.log("Video Time writen");
-            Routeplaylist().then(() => {
-                console.log("Playlists updated");
-                RouteCountallVideos().then(() => {
-                    console.log("Counted videos");
-                });
-            });
+    Routeplaylist().then(() => {
+        console.log("Playlists updated");
+        RouteCountallVideos().then(() => {
+            console.log("Counted videos");
         });
     });
+    // RouteAllvideos().then(() => {
+    //     console.log("Video data writen");
+    //     RouteVideTime().then(() => {
+    //         console.log("Video Time writen");
+    //         Routeplaylist().then(() => {
+    //             console.log("Playlists updated");
+    //             RouteCountallVideos().then(() => {
+    //                 console.log("Counted videos");
+    //             });
+    //         });
+    //     });
+    // });
 });
 
 //START test routes----------------------------------------------------------//
@@ -249,7 +249,7 @@ app.get("/countEachChannel", (req, res) => {
 function writevideoDetails(video, playlistName) {
     database.ref("AllContents/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
         var temp = dataSnap.val();
-        database.ref("Collections/" + playlistName + "/Youtubevideos/" + video.snippet.resourceId.videoId).set(temp);
+        database.ref("Collections/" + playlistName + "/AllContents/" + video.snippet.resourceId.videoId).set(temp);
     });
 }
 function writeExtraDetails(data) {
