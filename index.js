@@ -40,7 +40,7 @@ let videoTime = require("./routes/videoT");
 
 //random letiables
 const ArrayChannelVideos = ['UUrsXeU6cuGStvMCUhAgULyg', 'UUNmRmSpIJYqu7ttPLWLx2sw'];
-let ArrayPlaylist = ['UCrsXeU6cuGStvMCUhAgULyg', 'UCNmRmSpIJYqu7ttPLWLx2sw'];
+let ArrayPlaylist = ['UCNmRmSpIJYqu7ttPLWLx2sw', 'UCrsXeU6cuGStvMCUhAgULyg'];
 let ArrayVideos = [];
 let callnumber = 0;
 let indexArrayVideos = 0;
@@ -51,6 +51,9 @@ const app = express();
 app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
+    // RouteAllvideos().then(() => {
+    //     RouteCountallVideos();
+    // });
     Routeplaylist().then(() => {
         console.log("Playlists updated");
         RouteCountallVideos().then(() => {
@@ -92,46 +95,40 @@ app.listen(process.env.PORT || 3000, () => {
 
 //START Videos routes---------------------------------------------------------//
 function RouteAllvideos() {
-    indexArrayVideos = 0;
     return new Promise((resolve, reject) => {
-        playlistitemTHING.processRequest(function again(err, data, token) {
-            if (err)
-                res.status(200).write("error");
-            else {
-                if (data) {
-                    // database.ref("/videos/packet" + callnumber).set(data).then(() => {
-                    //     console.log("datapacket written packet number :" + callnumber);
-                    // });
-                    // console.log(data);
-                    // //RmznBCICv9YtgWaaa_nWDIH1_GM/LutSHzZCPVOFYznU-VBbRzqXBmk
-                    // //RmznBCICv9YtgWaaa_nWDIH1_GM/aCPN8aEhuu_1FTi6BnVImg0aiz0
-                    // return;
-                    data["items"].forEach(video => {
-                        var temp = {};
-                        temp["title"] = video.snippet.title;
-                        temp["id"] = video.snippet.resourceId.videoId;
-                        temp["publishedAt"] = formatDate((video.snippet.publishedAt).slice(0, 11));
-                        temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
-
-                        database.ref("AllContents/" + video.snippet.resourceId.videoId).set(temp).then(() => {
-                            // console.log("video written title and id is :" + temp.title + " : " + temp.publishedAt +" : call number is : " + callnumber);
-                        });
-                    });
-                    if (token != null || token !== undefined) {
-                        playlistitemTHING.processRequest(again, token, ArrayChannelVideos[indexArrayVideos]);
-                    } else {
-                        indexArrayVideos++;
-                        console.log("Next video :" + indexArrayVideos + "and player is :" + ArrayChannelVideos[indexArrayVideos]);
-                        if (indexArrayVideos < ArrayChannelVideos.length)
-                            playlistitemTHING.processRequest(again, null, ArrayChannelVideos[indexArrayVideos]);
-                        else {
-                            console.log("done da u chill now");
-                            resolve();
+        let m = 0;
+        let LoopHandler = () => {
+            m++;
+            console.log("Channel : " + m + " id : " + ArrayChannelVideos[m]);
+            if (m < ArrayChannelVideos.length)
+                LoopArrayChannel(m)
+            else
+                resolve();
+        }
+        let LoopArrayChannel = (i) => {
+            playlistitemTHING.processRequest(function again(err, data) {
+                return new Promise((innerResolve, innerReject) => {
+                    if (err)
+                        res.status(200).write("error");
+                    else {
+                        if (data) {
+                            let ArrayVideos = data["items"];
+                            let writeAllVideosLoop = (j) => {
+                                writeAllContentVideo(ArrayVideos[j]).then(() => {
+                                    j++;
+                                    if (j < ArrayVideos.length)
+                                        writeAllVideosLoop(j)
+                                    else
+                                        innerResolve();
+                                });
+                            }
+                            writeAllVideosLoop(0);
                         }
                     }
-                }
-            }
-        }, null, ArrayChannelVideos[indexArrayVideos]);
+                })
+            }, ArrayChannelVideos[i], LoopHandler);
+        }
+        LoopArrayChannel(0)
     });
 }
 
@@ -168,23 +165,64 @@ function RouteVideTime() {
 //START PlaylistsAndVideos routes---------------------------------------------------------//
 function Routeplaylist() {
     return new Promise((resolve, reject) => {
-        ArrayPlaylist.forEach(playlistID => {
-            playlist.processRequest(function again(err, data, token) {
-                if (err)
-                    console.log("error");
-                else {
-                    //database.ref("playlists/"+playliststring +"/title/").set(data['title']);
-                    if (token != undefined || token != null) {
-                        proccess.getVideos(data['playlistid'], again, data['title'], data['nextPageToken']);
+        let m = 0;
+        let LoopHandler = () => {
+            m++;
+            if (m < ArrayPlaylist.length)
+                LoopArrayplaylist(m)
+            else
+                resolve()
+        }
+        let LoopArrayplaylist = (i) => {
+            playlist.processRequest(function again(err, data) {
+                return new Promise((innerResolve, innerReject) => {
+                    if (err)
+                        console.log("error");
+                    else {
+                        writeExtraDetails(data).then(() => {
+                            let ArrayVideos = data.items;
+                            let writeAllVideosLoop = (j) => {
+                                writevideoDetails(ArrayVideos[j], data.title).then(() => {
+                                    j++;
+                                    if (j < ArrayVideos.length)
+                                        writeAllVideosLoop(j)
+                                    else
+                                        innerResolve();
+                                });
+                            }
+                            writeAllVideosLoop(0);
+                        })
                     }
-                    writeExtraDetails(data);
-                    data.items.forEach(video => {
-                        writevideoDetails(video, data.title);
-                    });
-                }
-            }, playlistID);
-        });
-        resolve();
+                })
+            }, ArrayPlaylist[i], LoopHandler);
+        }
+        LoopArrayplaylist(m);
+
+        // .then(() => {
+        //     if (i < ArrayPlaylist.length - 1) {
+        //         i++;
+        //         LoopArrayplaylist(i);
+        //     } else {
+        //         resolve();
+        //     }
+        // });
+        // ArrayPlaylist.forEach(playlistID => {
+        //     playlist.processRequest(function again(err, data, token) {
+        //         if (err)
+        //             console.log("error");
+        //         else {
+        //             //database.ref("playlists/"+playliststring +"/title/").set(data['title']);
+        //             if (token != undefined || token != null) {
+        //                 proccess.getVideos(data['playlistid'], again, data['title'], data['nextPageToken']);
+        //             }
+        //             writeExtraDetails(data);
+        //             data.items.forEach(video => {
+        //                 writevideoDetails(video, data.title);
+        //             });
+        //         }
+        //     }, playlistID);
+        // });
+        // resolve();
     })
 }
 //video.snippet.resourceId.videoId, video.snippet.playlistId
@@ -244,16 +282,36 @@ app.get("/countEachChannel", (req, res) => {
 });
 
 
+function writeAllContentVideo(video) {
+    return new Promise((resolve, reject) => {
+        var temp = {};
+        temp["title"] = video.snippet.title;
+        console.log(video.snippet.title);
+        temp["id"] = video.snippet.resourceId.videoId;
+        temp["publishedAt"] = formatDate((video.snippet.publishedAt).slice(0, 11));
+        temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
+        database.ref("AllContents/" + video.snippet.resourceId.videoId).set(temp).then(() => {
+            resolve();
+        });
+    })
+}
 
 
 function writevideoDetails(video, playlistName) {
-    database.ref("AllContents/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
-        var temp = dataSnap.val();
-        database.ref("Collections/" + playlistName + "/YoutubeVideos/" + video.snippet.resourceId.videoId).set(temp);
+    return new Promise((resolve, reject) => {
+        database.ref("AllContents/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
+            var temp = dataSnap.val();
+            database.ref("Collections/" + playlistName + "/YoutubeVideos/" + video.snippet.resourceId.videoId).set(temp).then(() => { resolve(); });
+
+        })
     });
 }
 function writeExtraDetails(data) {
-    database.ref("Collections/" + data.title + "/information/").update({ "NoOfVideos": data.pageInfo.totalResults });
+    return new Promise((resolve, reject) => {
+        database.ref("Collections/" + data.title + "/information/").update({ "NoOfVideos": data.pageInfo.totalResults }).then(() => {
+            resolve();
+        });
+    })
 }
 
 

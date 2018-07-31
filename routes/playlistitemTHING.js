@@ -18,11 +18,13 @@ var jwtClient = new google.auth.JWT(
     null
 );
 
+var nextChannel;
 // 'part': 'snippet,contentDetails',
 // 'playlistId': 'PLBCF2DAC6FFB574DE'
 
 
-var processRequest = function (callbackIndex, token, playlistChannel) {
+var processRequest = function (callbackIndex, playlistChannel, LoopHandler) {
+    nextChannel = LoopHandler;
     var param = {
         'params': {
             'maxResults': '50',
@@ -38,13 +40,11 @@ var processRequest = function (callbackIndex, token, playlistChannel) {
             return;
         }
         param.params.playlistId = playlistChannel;
-        if (token) {
-            param.params.pageToken = token;
-        }else{
-            console.log("no token ", playlistChannel);
-        }
-        // Authorize a client with the loaded credentials, then call the YouTube API.
-        //See full code sample for authorize() function code.
+        // if (token) {
+        //     param.params.pageToken = token;
+        // }else{
+        //     console.log("no token ", playlistChannel);
+        // }
         authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callbackIndex);
     });
 
@@ -104,7 +104,7 @@ function getNewToken(oauth2Client, requestData, callback, callbackIndex) {
     //         callback(oauth2Client, requestData, callbackIndex);
     //     });
     // });
-    
+
 
     jwtClient.authorize(function (err, tokens) {
         if (err) {
@@ -194,13 +194,19 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
-    service.playlistItems.list(parameters, function (err, response) {
+    service.playlistItems.list(parameters, function again(err, response) {
         if (err) {
             console.log('The API returned an errorrrrrrr: ' + err);
             return;
         }
-        //console.log("got response re routing");
-        callbackIndex(false, response, response['nextPageToken']);
+        callbackIndex(false, response).then(() => {
+            if (response['nextPageToken'] == null || response['nextPageToken'] == undefined) {
+                nextChannel();
+            } else {
+                parameters['pageToken'] = response['nextPageToken'];
+                service.playlistItems.list(parameters, again);
+            }
+        });
     });
 }
 

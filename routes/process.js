@@ -22,10 +22,13 @@ var jwtClient = new google.auth.JWT(
   SCOPES, // an array of auth scopes
   null
 );
+var CallbackLooper;
 
 
-function getVideos(playlistIDNODE, callbackindex, title, token) {
+function getVideos(playlistIDNODE, callbackindex, title, gg, loopfunctions) {
+
   // Load client secrets from a local file.
+  CallbackLooper = loopfunctions;
   var param = {
     'params': {
       'maxResults': '50',
@@ -40,8 +43,6 @@ function getVideos(playlistIDNODE, callbackindex, title, token) {
     // Authorize a client with the loaded credentials, then call the YouTube API.
     //See full code sample for authorize() function code.
     param.params.playlistId = playlistIDNODE;
-    if (token != null || token != undefined)
-      param.params.pageToken = token;
     authorize(JSON.parse(content), param, playlistItemsListByPlaylistId, callbackindex, title, playlistIDNODE);
   });
 }
@@ -51,9 +52,9 @@ function authorize(credentials, requestData, callback, callbackindex, title, pla
   var redirectUrl = credentials.web.redirect_uris[0];
   var auth = new googleAuth();
   var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
-  getNewToken(oauth2Client, requestData, callback, callbackindex,title,playlistIDNODE);
+  getNewToken(oauth2Client, requestData, callback, callbackindex, title, playlistIDNODE);
 }
-function getNewToken(oauth2Client, requestData, callback, callbackindex,title,playlistIDNODE) {
+function getNewToken(oauth2Client, requestData, callback, callbackindex, title, playlistIDNODE) {
   // var authUrl = oauth2Client.generateAuthUrl({
   //     access_type: 'offline',
   //     scope: SCOPES
@@ -85,7 +86,7 @@ function getNewToken(oauth2Client, requestData, callback, callbackindex,title,pl
 
     oauth2Client.credentials = tokens;
 
-    callback(oauth2Client, requestData, callbackindex,title,playlistIDNODE);
+    callback(oauth2Client, requestData, callbackindex, title, playlistIDNODE);
   });
   // googleAuthJwt.authenticate({
   //     // use the email address of the service account, as seen in the API console 
@@ -161,28 +162,36 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, 
   var parameters = removeEmptyParameters(requestData['params']);
   parameters['auth'] = auth;
   parameters['playlistId'] = playlistIDNODE;
-  service.playlistItems.list(parameters, function (err, response) {
+  service.playlistItems.list(parameters, function again(err, response) {
     if (err) {
       console.log('The API returned an error: ' + err);
       return;
     }
-      response['playlistid'] = playlistIDNODE;
-      response['title'] = title;
-      if (response['nextPageToken'] == null || response['nextPageToken'] == undefined) {
-          callbackindex(false, response, null);
-      } else {
-          callbackindex(false, response, response['nextPageToken']);
-      }
-      // Authorize a client with the loaded credentials, then call the YouTube API.
-      //See full code sample for authorize() function code.
-      // authorize(JSON.parse(content), {
-      //   'params': {
-      //     'maxResults': '50',
-      //     'pageToken': response.nextPageToken,
-      //     'part': 'snippet,contentDetails',
-      //     'playlistId': currentplaylist
-      //   }
-      // }, playlistItemsListByPlaylistId);
+    response['playlistid'] = playlistIDNODE;
+    response['title'] = title;
+    console.log("Playlist Tilte :" + title);
+    if (response['nextPageToken'] == null || response['nextPageToken'] == undefined) {
+      callbackindex(false, response).then(() => {
+        CallbackLooper();
+      });
+    } else {
+      callbackindex(false, response).then(() => {
+        parameters['pageToken'] = response['nextPageToken'];
+        service.playlistItems.list(parameters, again);
+      });
+
+    }
+
+    // Authorize a client with the loaded credentials, then call the YouTube API.
+    //See full code sample for authorize() function code.
+    // authorize(JSON.parse(content), {
+    //   'params': {
+    //     'maxResults': '50',
+    //     'pageToken': response.nextPageToken,
+    //     'part': 'snippet,contentDetails',
+    //     'playlistId': currentplaylist
+    //   }
+    // }, playlistItemsListByPlaylistId);
 
 
   });

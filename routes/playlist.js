@@ -187,7 +187,7 @@ function playlistsListByChannelId(auth, requestData, callbackthisFile) {
 
 
 
-var processRequest = function (callbackindex, ChannelIID) {
+var processRequest = function (callbackindex, ChannelIID, LoopHandler) {
     var param = {
         'params': {
             'maxResults': '50',
@@ -206,11 +206,20 @@ var processRequest = function (callbackindex, ChannelIID) {
         //             //UCrsXeU6cuGStvMCUhAgULyg Light of the Self Foundation UUrsXeU6cuGStvMCUhAgULyg
         //UCjXfkj5iapKHJrhYfAF9ZGg
         param.params.channelId = ChannelIID;
-        authorize(JSON.parse(content), param, playlistsListByChannelId, function (ArrayYoutubePlaylist) {
-            ArrayYoutubePlaylist.items.forEach(playlist => {
-                processs.getVideos(playlist.id, callbackindex, playlist.snippet.title, null);
-
-            });
+        authorize(JSON.parse(content), param, playlistsListByChannelId, (ArrayYoutubePlaylist) => {
+            let i = 0;
+            let ArrayPlaylistChannel = ArrayYoutubePlaylist.items;
+            let Looper = () => {
+                i++;
+                if (i < ArrayPlaylistChannel.length)
+                    processPlaylistChannels(i);
+                else
+                    LoopHandler();
+            }
+            let processPlaylistChannels = (j) => {
+                processs.getVideos(ArrayPlaylistChannel[j].id, callbackindex, ArrayPlaylistChannel[j].snippet.title, null, Looper);
+            }
+            processPlaylistChannels(i);
         });
         //writing call back here
     });
