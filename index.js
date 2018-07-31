@@ -109,7 +109,7 @@ function RouteAllvideos() {
                     data["items"].forEach(video => {
                         var temp = {};
                         temp["title"] = video.snippet.title;
-                        temp["videoID"] = video.snippet.resourceId.videoId;
+                        temp["id"] = video.snippet.resourceId.videoId;
                         temp["publishedAt"] = formatDate((video.snippet.publishedAt).slice(0, 11));
                         temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
 
@@ -141,9 +141,9 @@ function RouteAllvideos() {
 function RouteVideTime() {
     var flag = true;
     return new Promise((resolve, reject) => {
-        database.ref("/AllContent").once('value').then(function (allvideos) {
+        database.ref("/AllContents").once('value').then(function (allvideos) {
             allvideos.forEach(video => {
-                ArrayVideos.push(video.child("videoID").val());
+                ArrayVideos.push(video.child("id").val());
             });
         }).then(() => {
             console.log(resolve);
@@ -152,7 +152,7 @@ function RouteVideTime() {
                     let temp = {
                         "duration": convertTime(item["contentDetails"]["duration"])
                     };
-                    database.ref("/AllContent/" + item['id']).update(temp);
+                    database.ref("/AllContents/" + item['id']).update(temp);
                 });
                 console.log(videolenth);
                 if (videolenth == 0 && flag) {
@@ -249,15 +249,11 @@ app.get("/countEachChannel", (req, res) => {
 function writevideoDetails(video, playlistName) {
     database.ref("AllContents/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
         var temp = dataSnap.val();
-        database.ref("Collections/" + playlistName + "/AllContents/" + video.snippet.resourceId.videoId).set(temp);
+        database.ref("Collections/" + playlistName + "/YoutubeVideos/" + video.snippet.resourceId.videoId).set(temp);
     });
 }
 function writeExtraDetails(data) {
-    database.ref("Collections/" + data.title + "/information/" ).update({"noofvideos": data.pageInfo.totalResults});
-    // "title": data.title,  "playlist": data.playlistid 
-    let obj={};
-    obj[data.playlist]=data.title;
-    database.ref("CollectionsMapping").update(obj);
+    database.ref("Collections/" + data.title + "/information/").update({ "NoOfVideos": data.pageInfo.totalResults });
 }
 
 
