@@ -54,24 +54,24 @@ app.listen(process.env.PORT || 3000, () => {
     // RouteAllvideos().then(() => {
     //     RouteCountallVideos();
     // });
-    Routeplaylist().then(() => {
-        console.log("Playlists updated");
-        RouteCountallVideos().then(() => {
-            console.log("Counted videos");
-        });
-    });
-    // RouteAllvideos().then(() => {
-    //     console.log("Video data writen");
-    //     RouteVideTime().then(() => {
-    //         console.log("Video Time writen");
-    //         Routeplaylist().then(() => {
-    //             console.log("Playlists updated");
-    //             RouteCountallVideos().then(() => {
-    //                 console.log("Counted videos");
-    //             });
-    //         });
+    // Routeplaylist().then(() => {
+    //     console.log("Playlists updated");
+    //     RouteCountallVideos().then(() => {
+    //         console.log("Counted videos");
     //     });
     // });
+    RouteAllvideos().then(() => {
+        console.log("Video data writen");
+        RouteVideTime().then(() => {
+            console.log("Video Time writen");
+            Routeplaylist().then(() => {
+                console.log("Playlists updated");
+                RouteCountallVideos().then(() => {
+                    console.log("Counted videos");
+                });
+            });
+        });
+    });
 });
 
 //START test routes----------------------------------------------------------//
