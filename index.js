@@ -37,6 +37,7 @@ let playlist = require("./routes/playlist");
 let playlistitemTHING = require('./routes/playlistitemTHING');
 let proccess = require("./routes/process");
 let videoTime = require("./routes/videoT");
+let GDriveHandler = require("./DriveLinks.js");
 
 //random letiables
 const ArrayChannelVideos = ['UUrsXeU6cuGStvMCUhAgULyg', 'UUNmRmSpIJYqu7ttPLWLx2sw'];
@@ -60,18 +61,19 @@ app.listen(process.env.PORT || 3000, () => {
     //         console.log("Counted videos");
     //     });
     // });
-    RouteAllvideos().then(() => {
-        console.log("Video data writen");
-        RouteVideTime().then(() => {
-            console.log("Video Time writen");
-            Routeplaylist().then(() => {
-                console.log("Playlists updated");
-                RouteCountallVideos().then(() => {
-                    console.log("Counted videos");
-                });
-            });
-        });
-    });
+    // RouteAllvideos().then(() => {
+    //     console.log("Video data writen");
+    //     RouteVideTime().then(() => {
+    //         console.log("Video Time writen");
+    //         Routeplaylist().then(() => {
+    //             console.log("Playlists updated");
+    //             RouteCountallVideos().then(() => {
+    //                 console.log("Counted videos");
+    //             });
+    //         });
+    //     });
+    // });
+    console.log("Api Sync running")
 });
 
 //START test routes----------------------------------------------------------//
@@ -236,6 +238,14 @@ function RouteCountallVideos() {
         })
     })
 }
+
+app.get("/AccesstokenRefesh",(req,res)=>{
+    console.log("Refeshing token");
+    GDriveHandler.AccesstokenRefesh(database).then(()=>{
+        loader = false;
+        res.send("done");
+    })
+})
 
 //Counter videoroutes
 app.get("/countEachChannel", (req, res) => {

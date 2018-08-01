@@ -1,6 +1,6 @@
 var request = require('request');
 var processs = require('./process');
-var google = require('googleapis');
+var {google} = require('googleapis');
 var googleAuth = require('google-auth-library');
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = "./";

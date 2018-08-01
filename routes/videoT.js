@@ -1,7 +1,7 @@
 
 var fs = require('fs');
 var readline = require('readline');
-var google = require('googleapis');
+var {google} = require('googleapis');
 var googleAuth = require('google-auth-library');
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
