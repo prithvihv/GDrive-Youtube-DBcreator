@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}\\DriveLinks.js"
+            "program": "${workspaceFolder}\\DriveLinks_v2.js"
         }
     ]
 }

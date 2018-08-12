@@ -1,5 +1,6 @@
 const { google } = require('googleapis');
-let folderID = '14-sAwJ0JzqGQtVQcyArtO7F9oX2TOUqG';
+const folderID  = "1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO";
+
 
 let config = {
     apiKey: "AIzaSyDLi5odhLcnMqKim-bj9Z6kQyeg7-6DKmo",
@@ -75,9 +76,9 @@ function processApicall(respdata) {
     return new Promise((resolve, recject) => {
         respdata["items"].forEach(audioUnit => {
             audioUnit["parents"] = audioUnit["parents"][0];
-            audioUnit["publishedAt"] = audioUnit["createdDate"];
+            audioUnit["timestamp"] = (new Date(audioUnit.createdDate)).valueOf();
+            audioUnit["publishedAt"] =  formatDate2(audioUnit["createdDate"]);
             delete audioUnit["createdDate"];
-            audioUnit["timestamp"] = (new Date(audioUnit.publishedAt)).valueOf();
             console.log("running processApicall FOR : getGdriveAudio() : " + audioUnit.id);
             database.ref('/AllContents/' + audioUnit.id).set(audioUnit);
         });
@@ -104,13 +105,15 @@ function getGdrivePlaylist() {
             } else {
                 let ArrayCollections = resp.data["items"];
                 let processCollectionArray = (i) => {
-                    database.ref('/Collections/' + ArrayCollections[i].title + "/information").set(ArrayCollections[i]).then(() => {
+                    database.ref('/Collections/' + ArrayCollections[i].title + "/information").update(ArrayCollections[i]).then(() => {
                         getGdrivePlaylistdata(ArrayCollections[i].id, ArrayCollections[i].title).then(() => {
-                            i++;
-                            if (i < ArrayCollections.length)
-                                processCollectionArray(i)
-                            else
-                                resolve();
+                            countAudios(ArrayCollections[i].title).then(() => {
+                                i++;
+                                if (i < ArrayCollections.length)
+                                    processCollectionArray(i)
+                                else
+                                    resolve();
+                            })
                         });
                     });
                 }
@@ -144,7 +147,7 @@ function getGdrivePlaylistdata(foldID, CollectionName) {
                     console.log("running getGdriveCollectionData() : PlaylistId : " + ArrayAudiosCollections[i].id);
                     database.ref("/AllContents/" + ArrayAudiosCollections[i].id).once('value').then((iddata) => {
                         let data = iddata.val();
-                        database.ref("/Collections/" + CollectionName + "/AllContents/" + data["id"]).set(data).then(() => {
+                        database.ref("/Collections/" + CollectionName + "/GoogleAudios/" + data["id"]).set(data).then(() => {
                             i++;
                             if (i < ArrayAudiosCollections.length)
                                 processAudiosCollections(i)
@@ -164,9 +167,9 @@ function getGdrivePlaylistdata(foldID, CollectionName) {
 
 function countAudios(CollectionName) {
     return new Promise((resolve, reject) => {
-        database.ref('/Collections/' + CollectionName + '/AllConetents/').once('value').then((Audios) => {
+        database.ref('/Collections/' + CollectionName + '/GoogleAudios/').once('value').then((Audios) => {
             let countAudios = Audios.numChildren();
-            database.ref('/Collections/' + CollectionName + '/information/noofAudios').set(countAudios).then(() => {
+            database.ref('/Collections/' + CollectionName + '/information/NoOfAudios').set(countAudios).then(() => {
                 resolve();
             })
         })
@@ -177,7 +180,7 @@ function countAudios(CollectionName) {
  */
 function writemetadata() {
     return new Promise((resolve, reject) => {
-        database.ref('/Collections').once('value').then((ContentUnits) => {
+        database.ref('/Collections/').once('value').then((ContentUnits) => {
             ContentUnits.forEach((ContentUnit) => {
                 database.ref('/CollectionsMeta/' + ContentUnit.key).set(ContentUnit.val().information);
                 console.log("Processing Meta Data for : " + ContentUnit.key);
@@ -186,11 +189,17 @@ function writemetadata() {
         });
     })
 }
-// module.exports = {
-//     getUrl: processOauth
-// };
-// resp.data["items"].forEach(playlistunit => {
-            //     database.ref('/Collections/' + playlistunit.title + "/information").set(playlistunit).then(() => {
-            //         getGdrivePlaylistdata(playlistunit.id, playlistunit.title);
-            //     });
-            // })
+
+function formatDate(input) {
+    var datePart = input.match(/\d+/g),
+        year = datePart[0].substring(2), // get only two digits
+        month = datePart[1], day = datePart[2];
+
+    return day + '/' + month + '/' + year;
+}
+
+function formatDate2(input){
+    //format output 09-Feb-2018
+    input = (new Date(input)).toString();//"Sat Aug 04 2018 17:25:39 GMT+0530 (India Standard Time)"
+    return input.substring(8,10) + "-" + input.substring(4,7) + "-" + input.substring(11,15);
+}
