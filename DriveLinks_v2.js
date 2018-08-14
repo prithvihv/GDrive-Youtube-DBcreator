@@ -42,7 +42,10 @@ database.ref('/GoogleDriveCredentials').once('value').then((credential) => {
 })
 
 function main() {
-    folder(folderID, null);
+    folder(folderID);
+}
+function doneDrive() {
+    console.log(countAudios);
 }
 
 function i(resp) {
@@ -58,29 +61,34 @@ function i(resp) {
                     resolve();
             }
             let processData = (j) => {
-                if (ArrayData[j].mimeType == "application/vnd.google-apps.folder") {
-                    FolderDetails(ArrayData[j]).then(() => {
-                        console.log("folder : " + ArrayData[j].title);
-                        ArrayOfFolder.push(ArrayData[j].id);
-                        loophandler();
-                    });
-                } else {//audio
-                    AudioDetails(ArrayData[j]).then(() => {
-                        console.log("audio : " + ArrayData[j].title);
-                        loophandler();
-                    });
+                if (ArrayData.length != 0) {
+                    if (ArrayData[j].mimeType == "application/vnd.google-apps.folder") {
+                        FolderDetails(ArrayData[j]).then(() => {
+                            //console.log("folder : " + ArrayData[j].title);
+                            ArrayOfFolder.push(ArrayData[j].id);
+                            loophandler();
+                        });
+                    } else {//audio
+                        AudioDetails(ArrayData[j]).then(() => {
+                            //console.log("audio : " + ArrayData[j].title);
+                            loophandler();
+                        });
+                    }
+                } else {
+                    loophandler();
                 }
+
             }
             processData(0)
         })
     }
 }
 
-function folder(id, loophandler) {
+function folder(id) {
     return new Promise(function (resolve, reject) {
         let objQ = {
             q: `'${id}' in parents`,
-            fields: 'items(createdDate,modifiedDate,id,title,mimeType,parents(id)),nextPageToken'
+            fields: 'items(createdDate,downloadUrl,modifiedDate,id,title,mimeType,parents(id)),nextPageToken'
         };
         drive.files.list(objQ, (err, resp) => {
             if (err) {
@@ -90,19 +98,14 @@ function folder(id, loophandler) {
                 let Iterator = i(resp);
                 Iterator().then(() => {
                     if (ArrayOfFolder.length != 0) {
-                        let loophandler = () => {
-                            if (ArrayOfFolder.length > 0)
-                                processData()
-                        }
-                        let processData = () => {
-                            let element = ArrayOfFolder.pop();
-                            folder(element, loophandler);
-                        }
-                        processData();
+                        printStack();
+                        let element = ArrayOfFolder.pop();
+                        // reducearray().then(() => {
+                        //     folder(element);
+                        // })
+                        folder(element);
                     } else {
-                        if (loophandler) {
-                            loophandler();
-                        }
+                        resolve();
                     }
                 });
 
@@ -130,6 +133,21 @@ function folder(id, loophandler) {
         })
     })
 }
+function reducearray() {
+    return new Promise((resolve, reject) => {
+        let len = ArrayOfFolder.length - 1;
+        for (var i = 0; i < len; i++)
+            ArrayOfFolder.pop();
+        resolve();
+    })
+}
+function printStack() {
+    console.log("----------------------------------------");
+    ArrayOfFolder.forEach(item => {
+        console.log(item);
+    });
+    console.log("----------------------------------------")
+}
 function FolderDetails(FolderObj) {
     return new Promise((resolve, reject) => {
         database.ref("/NewCollections-Meta/" + FolderObj.id).set(FolderObj).then(() => {
@@ -141,8 +159,9 @@ function AudioDetails(AudioObj) {
     return new Promise((resolve, reject) => {
         database.ref("/NewCollections/" + AudioObj.parents[0].id + "/" + AudioObj.id).update(AudioObj).then(() => {
             countAudios++;
-            console.log(countAudios);
-            resolve();
+            database.ref("/AllContents/" + AudioObj.id).set(AudioObj).then(() => {
+                resolve();
+            })
         })
     })
 }

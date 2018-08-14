@@ -96,22 +96,14 @@ function RouteAllvideos() {
                 res.status(200).write("error");
             else {
                 if (data) {
-                    // database.ref("/videos/packet" + callnumber).set(data).then(() => {
-                    //     console.log("datapacket written packet number :" + callnumber);
-                    // });
-                    // console.log(data);
-                    // //RmznBCICv9YtgWaaa_nWDIH1_GM/LutSHzZCPVOFYznU-VBbRzqXBmk
-                    // //RmznBCICv9YtgWaaa_nWDIH1_GM/aCPN8aEhuu_1FTi6BnVImg0aiz0
-                    // return;
                     data["items"].forEach(video => {
                         var temp = {};
                         temp["title"] = video.snippet.title;
                         temp["videoID"] = video.snippet.resourceId.videoId;
                         temp["publishedAt"] = formatDate((video.snippet.publishedAt).slice(0, 11));
                         temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
-
                         database.ref("AllContent/" + video.snippet.resourceId.videoId).set(temp).then(() => {
-                            // console.log("video written title and id is :" + temp.title + " : " + temp.publishedAt +" : call number is : " + callnumber);
+                            console.log(video.snippet.title);
                         });
                     });
                     if (token != null || token !== undefined) {

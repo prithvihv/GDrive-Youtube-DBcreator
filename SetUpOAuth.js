@@ -3,19 +3,18 @@ const scopes = [
 ];
 const { google } = require('googleapis');
 const readline = require('readline');
-let getUrl = require('./DriveLinks.js');
 
-// let config = {
-//     apiKey: "AIzaSyDLi5odhLcnMqKim-bj9Z6kQyeg7-6DKmo",
-//     authDomain: "ajappprod.firebaseapp.com",
-//     databaseURL: "https://ajappprod.firebaseio.com",
-//     projectId: "ajappprod",
-//     storageBucket: "ajappprod.appspot.com",
-//     messagingSenderId: "485319972083"
-// };
-// const firebase = require('firebase');
-// firebase.initializeApp(config);
-// let database = firebase.database();
+let config = {
+    apiKey: "AIzaSyDLi5odhLcnMqKim-bj9Z6kQyeg7-6DKmo",
+    authDomain: "ajappprod.firebaseapp.com",
+    databaseURL: "https://ajappprod.firebaseio.com",
+    projectId: "ajappprod",
+    storageBucket: "ajappprod.appspot.com",
+    messagingSenderId: "485319972083"
+};
+const firebase = require('firebase');
+firebase.initializeApp(config);
+let database = firebase.database();
 
 
 
@@ -45,7 +44,6 @@ rl.question('Enterprocessing the code from that page here: ', function (code) {
             return;
         }
         oauth2Client.credentials = token;
-        //getUrl.getUrl(oauth2Client);
         database.ref("/GoogleDriveCredentials").update(token).then(() => {
             console.log("Wrote to db");
         }).catch(() => {
