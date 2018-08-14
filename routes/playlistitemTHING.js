@@ -1,7 +1,7 @@
 var fs = require('fs');
 var readline = require('readline');
 var {google} = require('googleapis');
-var googleAuth = require('google-auth-library');
+
 
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/google-apis-nodejs-quickstart.json
@@ -59,8 +59,8 @@ var processRequest = function (callbackIndex, playlistChannel, LoopHandler) {
         var clientSecret = credentials.web.client_secret;
         var clientId = credentials.web.client_id;
         var redirectUrl = credentials.web.redirect_uris[0];
-        var auth = new googleAuth();
-        var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+    
+        var oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
         //       Check if we have previously stored a token.
         fs.readFile(TOKEN_PATH, function (err, token) {
@@ -194,16 +194,16 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackIndex) {
     var service = google.youtube('v3');
     var parameters = removeEmptyParameters(requestData['params']);
     parameters['auth'] = auth;
-    service.playlistItems.list(parameters, function again(err, response) {
+    service.playlistItems.list(parameters, function again(err, response,more) {
         if (err) {
             console.log('The API returned an errorrrrrrr: ' + err);
             return;
         }
-        callbackIndex(false, response).then(() => {
-            if (response['nextPageToken'] == null || response['nextPageToken'] == undefined) {
+        callbackIndex(false, response.data).then(() => {
+            if (response.data['nextPageToken'] == null || response.data['nextPageToken'] == undefined) {
                 nextChannel();
             } else {
-                parameters['pageToken'] = response['nextPageToken'];
+                parameters['pageToken'] =response.data['nextPageToken'];
                 service.playlistItems.list(parameters, again);
             }
         });

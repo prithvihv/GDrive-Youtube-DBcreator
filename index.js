@@ -52,9 +52,10 @@ const app = express();
 app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
-    // RouteAllvideos().then(() => {
-    //     RouteCountallVideos();
-    // });
+  //  RouteVideTime();
+    RouteAllvideos().then(() => {
+        
+    });
     // Routeplaylist().then(() => {
     //     console.log("Playlists updated");
     //     RouteCountallVideos().then(() => {
@@ -101,7 +102,7 @@ function RouteAllvideos() {
         let m = 0;
         let LoopHandler = () => {
             m++;
-            console.log("Channel : " + m + " id : " + ArrayChannelVideos[m]);
+            console.log("Channel : " + (m+1) + " id : " + ArrayChannelVideos[m]);
             if (m < ArrayChannelVideos.length)
                 LoopArrayChannel(m)
             else
@@ -298,7 +299,9 @@ function writeAllContentVideo(video) {
         temp["title"] = video.snippet.title;
         console.log(video.snippet.title);
         temp["id"] = video.snippet.resourceId.videoId;
-        temp["publishedAt"] = formatDate((video.snippet.publishedAt).slice(0, 11));
+        //temp["publishedAt"] = formatDate((video.snippet.publishedAt).slice(0, 11));
+        // temp["publishedAt"]= convertTime(video.snippet.publishedAt)
+        temp["publishedAt"]=formatDate2(video.snippet.publishedAt);
         temp["timestamp"] = new Date(video.snippet.publishedAt).valueOf();
         database.ref("AllContents/" + video.snippet.resourceId.videoId).set(temp).then(() => {
             resolve();
@@ -351,9 +354,15 @@ function convertTime(element) {
 }
 
 function formatDate(input) {
+    //format dd/mm/yy
     var datePart = input.match(/\d+/g),
         year = datePart[0].substring(2), // get only two digits
         month = datePart[1], day = datePart[2];
 
     return day + '/' + month + '/' + year;
+}
+function formatDate2(input){
+    //format output 09-Feb-2018
+    input = (new Date(input)).toString();//"Sat Aug 04 2018 17:25:39 GMT+0530 (India Standard Time)"
+    return input.substring(8,10) + "-" + input.substring(4,7) + "-" + input.substring(11,15);
 }

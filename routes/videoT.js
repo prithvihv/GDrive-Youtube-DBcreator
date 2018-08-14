@@ -1,7 +1,7 @@
 
 var fs = require('fs');
 var readline = require('readline');
-var {google} = require('googleapis');
+var { google } = require('googleapis');
 var googleAuth = require('google-auth-library');
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
@@ -16,7 +16,7 @@ var jwtClient = new google.auth.JWT(
     null
 );
 // Load client secrets from a local file.
-var counter =0;
+var counter = 0;
 var list_IDvideos;
 var GetVideoTime = function (callbackIndex, listIDvideos) {
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
@@ -31,7 +31,7 @@ var GetVideoTime = function (callbackIndex, listIDvideos) {
             return;
         }
         list_IDvideos = listIDvideos;
-        console.log("length of list is " , list_IDvideos.length);
+        console.log("length of list is ", list_IDvideos.length);
 
         authorize(JSON.parse(content), param, videosListById, callbackIndex);
     });
@@ -41,8 +41,8 @@ function authorize(credentials, requestData, callback, callbackIndex) {
     var clientSecret = credentials.web.client_secret;
     var clientId = credentials.web.client_id;
     var redirectUrl = credentials.web.redirect_uris[0];
-    var auth = new googleAuth();
-    var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+
+    var oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
     getNewToken(oauth2Client, requestData, callback, callbackIndex);
     // Check if we have previously stored a token.
 }
@@ -112,21 +112,22 @@ function videosListById(auth, requestData, callbackIndex) {
     parameters['auth'] = auth;
 
     // Check if we have previously stored a token.
-    (function repeat(){
+    let repeat = ()=> {
 
-                parameters['id'] =  (list_IDvideos.splice(0, 50)).toString();
+        parameters['id'] = (list_IDvideos.splice(0, 50)).toString();
 
-                service.videos.list(parameters, function (err, response) {
-                    if (err) {
-                        console.log('The API returned an error: ' + err);
-                        return;
-                    }
-                    callbackIndex(response,list_IDvideos.length);
-                    console.log(list_IDvideos.length);
-                    if(list_IDvideos.length>0)
-                        repeat();
-                });
-    })()
+        service.videos.list(parameters, function (err, response) {
+            if (err) {
+                console.log('The API returned an error: ' + err);
+                return;
+            }
+            callbackIndex(response.data, list_IDvideos.length);
+            console.log(list_IDvideos.length);
+            if (list_IDvideos.length > 0)
+                repeat();
+        });
+    };
+    repeat();
 }
 
 module.exports = {
