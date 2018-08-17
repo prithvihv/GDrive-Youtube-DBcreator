@@ -1,7 +1,7 @@
 var request = require('request');
 var processs = require('./process');
 var {google} = require('googleapis');
-var googleAuth = require('google-auth-library');
+
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = "./";
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
@@ -19,9 +19,7 @@ var jwtClient = new google.auth.JWT(
 
 var currentplaylist;
 
-
-var google = require('googleapis');
-var googleAuth = require('google-auth-library');
+//var googleAuth = require('google-auth-library');
 //const isPlaylist = require("is-playlist");
 
 
@@ -39,8 +37,7 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
     var clientSecret = credentials.web.client_secret;
     var clientId = credentials.web.client_id;
     var redirectUrl = credentials.web.redirect_uris[0];
-    var auth = new googleAuth();
-    var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+    var oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
     getNewToken(oauth2Client, requestData, callback, callbackthisFile);
 
     // Check if we have previously stored a token.
@@ -70,7 +67,7 @@ function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
     // });
 
 
-    jwtClient.authorize(function (err, tokens) {
+    jwtClient.authorize((err, tokens) => {
         if (err) {
             console.log(err);
             return;
@@ -208,7 +205,7 @@ var processRequest = function (callbackindex, ChannelIID, LoopHandler) {
         param.params.channelId = ChannelIID;
         authorize(JSON.parse(content), param, playlistsListByChannelId, (ArrayYoutubePlaylist) => {
             let i = 0;
-            let ArrayPlaylistChannel = ArrayYoutubePlaylist.items;
+            let ArrayPlaylistChannel = ArrayYoutubePlaylist.data.items;
             let Looper = () => {
                 i++;
                 if (i < ArrayPlaylistChannel.length)

@@ -206,6 +206,8 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackIndex) {
                 parameters['pageToken'] =response.data['nextPageToken'];
                 service.playlistItems.list(parameters, again);
             }
+        }).catch((Channeldone)=>{
+            console.log("Channel id : "+  Channeldone);
         });
     });
 }

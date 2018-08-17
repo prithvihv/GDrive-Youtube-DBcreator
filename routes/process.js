@@ -1,6 +1,3 @@
-
-// If modifying these scopes, delete your previously saved credentials
-// at ~/.credentials/google-apis-nodejs-quickstart.json
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
   process.env.USERPROFILE) + '/.credentials/';
@@ -10,7 +7,6 @@ var request = require('request');
 var fs = require('fs');
 var readline = require('readline');
 var {google} = require('googleapis');
-var googleAuth = require('google-auth-library');
 //const isPlaylist = require("is-playlist");
 var count = 0;
 var that;
@@ -50,8 +46,7 @@ function authorize(credentials, requestData, callback, callbackindex, title, pla
   var clientSecret = credentials.web.client_secret;
   var clientId = credentials.web.client_id;
   var redirectUrl = credentials.web.redirect_uris[0];
-  var auth = new googleAuth();
-  var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+  var oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
   getNewToken(oauth2Client, requestData, callback, callbackindex, title, playlistIDNODE);
 }
 function getNewToken(oauth2Client, requestData, callback, callbackindex, title, playlistIDNODE) {
@@ -88,24 +83,7 @@ function getNewToken(oauth2Client, requestData, callback, callbackindex, title, 
 
     callback(oauth2Client, requestData, callbackindex, title, playlistIDNODE);
   });
-  // googleAuthJwt.authenticate({
-  //     // use the email address of the service account, as seen in the API console 
-  //     email: 'nodeserver@ajapp-192505.iam.gserviceaccount.com',
-  //     // use the PEM file we generated from the downloaded key 
-  //     keyFile: 'your-key-file.pem',
-  //     // specify the scopes you wish to access 
-  //     scopes: SCOPES
-  //   }, function (err, token) {
-  //     console.log(token);
-  //     console.log("JWT")
-  //     if(err){
-  //         console.log('Error while trying to retrieve access token', err);
-  //         return;
-  //     }
-  //     oauth2Client.credentials = token;
-  //     storeToken(token);
-  //     callback(oauth2Client, requestData, callbackthisFile);
-  //   });
+  
 }
 function storeToken(token) {
   try {
@@ -167,33 +145,19 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, 
       console.log('The API returned an error: ' + err);
       return;
     }
-    response['playlistid'] = playlistIDNODE;
-    response['title'] = title;
+    response.data['playlistid'] = playlistIDNODE;
+    response.data['title'] = title;
     console.log("Playlist Tilte :" + title);
-    if (response['nextPageToken'] == null || response['nextPageToken'] == undefined) {
-      callbackindex(false, response).then(() => {
+    if (response.data['nextPageToken'] == null || response.data['nextPageToken'] == undefined) {
+      callbackindex(false, response.data).then(() => {
         CallbackLooper();
       });
     } else {
-      callbackindex(false, response).then(() => {
-        parameters['pageToken'] = response['nextPageToken'];
+      callbackindex(false, response.data).then(() => {
+        parameters['pageToken'] = response.data['nextPageToken'];
         service.playlistItems.list(parameters, again);
       });
-
     }
-
-    // Authorize a client with the loaded credentials, then call the YouTube API.
-    //See full code sample for authorize() function code.
-    // authorize(JSON.parse(content), {
-    //   'params': {
-    //     'maxResults': '50',
-    //     'pageToken': response.nextPageToken,
-    //     'part': 'snippet,contentDetails',
-    //     'playlistId': currentplaylist
-    //   }
-    // }, playlistItemsListByPlaylistId);
-
-
   });
 }
 module.exports = {
