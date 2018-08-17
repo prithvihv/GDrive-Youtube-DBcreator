@@ -3,6 +3,7 @@ let express = require("express");
 const cors = require("cors");
 var deepEqual = require('deep-equal');
 const { google } = require('googleapis');
+const folderID = "1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO";
 //firebase
 let config = {
     apiKey: "AIzaSyDLi5odhLcnMqKim-bj9Z6kQyeg7-6DKmo",
@@ -219,7 +220,7 @@ app.get("/forceUpdateDrive", (req, res) => {
 })
 
 //Counter videoroutes
-app.get("/countEachChannel", (req, res) => {
+app.get("/ScanYoutube", (req, res) => {
     var channelCounter = 0;
     let temp = {};
     playlistitemTHING.processRequest(function again(err, data, token) {
