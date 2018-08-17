@@ -42,8 +42,62 @@ database.ref('/GoogleDriveCredentials').once('value').then((credential) => {
 })
 
 function main() {
-    folder(folderID);
-    //database.ref("/").set(":)");
+    //folder(folderID);
+    //updateLastTransactionGoogleDriveID(134799);
+    CheckDriveChanges();
+}
+function triggerDriveupdates() {
+    printStack();
+    if(ArrayOfFolder.length!=0){
+        let element = ArrayOfFolder.pop();
+        folder(element);
+    }
+}
+function CheckDriveChanges() {
+    getLastTransactionGoogleDriveID().then((id) => {
+        let objQ = {
+            includeDeleted: true,
+            includeSubscribed: true,
+            includeTeamDriveItems: false,
+            maxResults: 50,
+            fields: 'items(file(downloadUrl,fileExtension,id,mimeType,ownerNames,parents/id,title),id),kind,largestChangeId,newStartPageToken,nextPageToken',
+            startChangeId: id
+        }
+        drive.changes.list(objQ, (err, res) => {
+            if (err) {
+                console.log("API error :" + err)
+            } else {
+                updateLastTransactionGoogleDriveID(res.data["newStartPageToken"]);
+                let j = 0;
+                let ArrayChangesItems = res.data["items"];
+                let loophandler = () => {
+                    j++;
+                    if (ArrayChangesItems.length > j)
+                        processData(j)
+                    else {
+                        triggerDriveupdates();
+                    }
+                }
+                let processData = (j) => {// &&ArrayChangesItems[j].ownerNames[0]=="Light of Self Light"
+                    if (ArrayChangesItems[j].file.mimeType == "application/vnd.google-apps.folder") {
+                        if (ArrayChangesItems[j].file.id == folderID) {
+                            folder(folderID);
+                            return;
+                        } else if (this.ArrayOfFolder.indexOf(ArrayChangesItems[j].file.id) === -1) {
+                            ArrayOfFolder.push(ArrayChangesItems[j].file.id);
+                            loophandler();
+                        }
+                    } else {//audio
+                        if (this.ArrayOfFolder.indexOf(ArrayChangesItems[j].file.parents[0].id) === -1) {
+                            ArrayOfFolder.push(ArrayChangesItems[j].file.parents[0].id);
+                        }
+                        loophandler();
+                    }
+                }
+                processData(0)
+            }
+        })
+    });
 }
 async function CleanAudiosCollection() {
     let AllCollection = await database.ref("/Collections/").once('value');
@@ -126,6 +180,16 @@ function folder(id) {
             }
         })
     })
+}
+function getLastTransactionGoogleDriveID() {//1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO
+    return new Promise((resolve, reject) => {
+        database.ref("/GoogleDriveTransactionID").once('value').then((id) => {
+            resolve(id.val());
+        })
+    })
+}
+function updateLastTransactionGoogleDriveID(id) {
+    database.ref("/GoogleDriveTransactionID").set(id);
 }
 function reducearray() {
     return new Promise((resolve, reject) => {
