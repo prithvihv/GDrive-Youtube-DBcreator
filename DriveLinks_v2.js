@@ -43,9 +43,21 @@ database.ref('/GoogleDriveCredentials').once('value').then((credential) => {
 
 function main() {
     folder(folderID);
+    //database.ref("/").set(":)");
 }
-function doneDrive() {
-    console.log(countAudios);
+async function CleanAudiosCollection() {
+    let AllCollection = await database.ref("/Collections/").once('value');
+    AllCollection.forEach(item => {
+        if (!item.key.startsWith("PL"))
+            database.ref("/Collections-Meta/" + item.key).update({ "NoOfAudios": item.numChildren() });
+    });
+    let CollectionMeta = await database.ref("/Collections-Meta/").once('value');
+    CollectionMeta.forEach(Metadata => {
+        if (Metadata.val()["NoOfAudios"] === undefined && Metadata.val()["NoOfVideos"] == undefined) {
+            database.ref("/Collections-Meta/" + Metadata.key).remove();
+        }
+    })
+    console.log("done");
 }
 
 function i(resp) {
@@ -57,8 +69,12 @@ function i(resp) {
                 j++;
                 if (ArrayData.length > j)
                     processData(j)
-                else
-                    resolve();
+                else {
+                    if (ArrayOfFolder.length != 0)
+                        resolve();
+                    else
+                        CleanAudiosCollection();
+                }
             }
             let processData = (j) => {
                 if (ArrayData.length != 0) {
@@ -66,6 +82,9 @@ function i(resp) {
                         FolderDetails(ArrayData[j]).then(() => {
                             //console.log("folder : " + ArrayData[j].title);
                             ArrayOfFolder.push(ArrayData[j].id);
+                            // reducearray().then(() => {
+                            //     loophandler();
+                            // })
                             loophandler();
                         });
                     } else {//audio
@@ -77,7 +96,6 @@ function i(resp) {
                 } else {
                     loophandler();
                 }
-
             }
             processData(0)
         })
@@ -88,7 +106,7 @@ function folder(id) {
     return new Promise(function (resolve, reject) {
         let objQ = {
             q: `'${id}' in parents`,
-            fields: 'items(createdDate,downloadUrl,modifiedDate,id,title,mimeType,parents(id)),nextPageToken'
+            fields: 'items(createdDate,downloadUrl,id,title,mimeType,parents(id)),nextPageToken'
         };
         drive.files.list(objQ, (err, resp) => {
             if (err) {
@@ -100,35 +118,11 @@ function folder(id) {
                     if (ArrayOfFolder.length != 0) {
                         printStack();
                         let element = ArrayOfFolder.pop();
-                        // reducearray().then(() => {
-                        //     folder(element);
-                        // })
                         folder(element);
                     } else {
                         resolve();
                     }
                 });
-
-                //console.log("lenght of Items " + Arraydata.length);
-                // let itemHandler = function (j) {
-                //     return new Promise((innerResolve, innerReject) => {
-                //         if (Arraydata[j].mimeType == "application/vnd.google-apps.folder") {
-                //             FolderDetails(Arraydata[j]).then(() => {
-                //                 folder(Arraydata[j].id);
-                //                 j++;
-                //                 if (j < Arraydata.lenght)
-                //                     itemHandler(j);
-                //             });
-                //         } else {//audio
-                //             AudioDetails(Arraydata[j]).then(() => {
-                //                 j++;
-                //                 if (j < Arraydata.length)
-                //                     itemHandler(j);
-                //             })
-                //         }
-                //     })
-                // }
-                // itemHandler(j)
             }
         })
     })
@@ -150,18 +144,29 @@ function printStack() {
 }
 function FolderDetails(FolderObj) {
     return new Promise((resolve, reject) => {
-        database.ref("/NewCollections-Meta/" + FolderObj.id).set(FolderObj).then(() => {
+        delete FolderObj.parents;
+        database.ref("/Collections-Meta/" + FolderObj.id).set(FolderObj).then(() => {
             resolve();
         });
     })
 }
 function AudioDetails(AudioObj) {
     return new Promise((resolve, reject) => {
-        database.ref("/NewCollections/" + AudioObj.parents[0].id + "/" + AudioObj.id).update(AudioObj).then(() => {
+        let path = AudioObj.parents[0].id;
+        AudioObj["publishedAt"] = formatDate2(AudioObj["createdDate"]);
+        AudioObj["timestamp"] = (new Date(AudioObj["createdDate"])).valueOf();
+        delete AudioObj["createdDate"];
+        delete AudioObj["parents"];
+        database.ref("/Collections/" + path + "/" + AudioObj.id).update(AudioObj).then(() => {
             countAudios++;
             database.ref("/AllContents/" + AudioObj.id).set(AudioObj).then(() => {
                 resolve();
             })
         })
     })
+}
+function formatDate2(input) {
+    //format output 09-Feb-2018
+    input = (new Date(input)).toString();//"Sat Aug 04 2018 17:25:39 GMT+0530 (India Standard Time)"
+    return input.substring(8, 10) + "-" + input.substring(4, 7) + "-" + input.substring(11, 15);
 }
