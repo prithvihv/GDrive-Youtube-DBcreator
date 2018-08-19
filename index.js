@@ -54,10 +54,10 @@ const app = express();
 app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
-    console.log("RUNNNNN BITCH ");
-    refreshToken().then(() => {
-        CheckDriveChanges();
-    })
+    console.log("UP AND RUNNING");
+    // refreshToken().then(() => {
+    //     CheckDriveChanges();
+    // })
 });
 
 //START test routes----------------------------------------------------------//
@@ -401,8 +401,12 @@ function CheckDriveChanges() {
                 }
                 let processData = (j) => {// &&ArrayChangesItems[j].ownerNames[0]=="Light of Self Light"
                     // "&&ArrayChangesItems[j].labels.trashed"
+                    if(ArrayChangesItems.length==0){
+                        console.log("No changes");
+                        return;
+                    }
                     let ItemProcessing = ArrayChangesItems[j];
-                    if (ItemProcessing.file.mimeType == "application/vnd.google-apps.folder"&&ItemProcessing.file.labels.trashed == false) {
+                    if (ItemProcessing.file.mimeType == "application/vnd.google-apps.folder" && ItemProcessing.file.labels.trashed == false) {
                         if (ItemProcessing.file.id == folderID) {
                             // ArrayOfFolder.length=0;
                             // folder(folderID);
@@ -413,8 +417,12 @@ function CheckDriveChanges() {
                             loophandler();
                         }
                     } else if (ItemProcessing.file.labels.trashed == true) {//deleted file
-                        if (ItemProcessing.file.parents.length != 0) {//audio file deleted
+                        if (ItemProcessing.file.mimeType != "application/vnd.google-apps.folder") {//audio file deleted
                             deleteAudio(ItemProcessing).then(() => {
+                                loophandler();
+                            })
+                        } else {
+                            deleteFolder(ItemProcessing).then(() => {
                                 loophandler();
                             })
                         }
@@ -575,4 +583,12 @@ function formatDate2(input) {
     //format output 09-Feb-2018
     input = (new Date(input)).toString();//"Sat Aug 04 2018 17:25:39 GMT+0530 (India Standard Time)"
     return input.substring(8, 10) + "-" + input.substring(4, 7) + "-" + input.substring(11, 15);
+}
+
+function deleteFolder(ItemProcessing) {
+    return new Promise((res, rej) => {
+        database.ref("Collections/" + ItemProcessing.file.id).remove().then(() => {
+            res();
+        })
+    })
 }
