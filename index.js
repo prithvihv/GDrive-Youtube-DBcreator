@@ -206,11 +206,6 @@ app.get("/AccesstokenRefesh", (req, res) => {
     });
 });
 
-app.get("/ScanYoutube", (req, res) => {
-
-    res.send("Scanning Youtube");
-})
-
 app.get("/ScanDrive", (req, res) => {
     res.send("Scanning drive");
     refreshToken().then(() => {
@@ -401,7 +396,7 @@ function CheckDriveChanges() {
                 }
                 let processData = (j) => {// &&ArrayChangesItems[j].ownerNames[0]=="Light of Self Light"
                     // "&&ArrayChangesItems[j].labels.trashed"
-                    if(ArrayChangesItems.length==0){
+                    if (ArrayChangesItems.length == 0) {
                         console.log("No changes");
                         return;
                     }
@@ -446,8 +441,8 @@ function deleteAudio(item) {
         let p2 = database.ref("Collection/" + item.file.parents[0].id).remove();
         Promise.all([p1, p2]).then(() => {
             res();
-        })
-    })
+        });
+    });
 }
 async function CleanAudiosCollection() {
     let AllCollection = await database.ref("/Collections/").once('value');
@@ -482,20 +477,24 @@ function i(resp) {
             }
             let processData = (j) => {
                 if (ArrayData.length != 0) {
-                    if (ArrayData[j].mimeType == "application/vnd.google-apps.folder") {
-                        FolderDetails(ArrayData[j]).then(() => {
-                            //console.log("folder : " + ArrayData[j].title);
-                            ArrayOfFolder.push(ArrayData[j].id);
-                            // reducearray().then(() => {
-                            //     loophandler();
-                            // })
-                            loophandler();
-                        });
-                    } else {//audio
-                        AudioDetails(ArrayData[j]).then(() => {
-                            //console.log("audio : " + ArrayData[j].title);
-                            loophandler();
-                        });
+                    if (!ArrayData[j].labels.trashed) {
+                        if (ArrayData[j].mimeType == "application/vnd.google-apps.folder") {
+                            FolderDetails(ArrayData[j]).then(() => {
+                                //console.log("folder : " + ArrayData[j].title);
+                                ArrayOfFolder.push(ArrayData[j].id);
+                                // reducearray().then(() => {
+                                //     loophandler();
+                                // })
+                                loophandler();
+                            });
+                        } else {//audio
+                            AudioDetails(ArrayData[j]).then(() => {
+                                //console.log("audio : " + ArrayData[j].title);
+                                loophandler();
+                            });
+                        }
+                    }else{
+                        loophandler();
                     }
                 } else {
                     loophandler();
@@ -510,7 +509,7 @@ function folder(id) {
     return new Promise(function (resolve, reject) {
         let objQ = {
             q: `'${id}' in parents`,
-            fields: 'items(createdDate,downloadUrl,id,title,mimeType,parents(id)),nextPageToken'
+            fields: 'items(createdDate,downloadUrl,id,title,mimeType,parents(id),labels/trashed),nextPageToken'
         };
         drive.files.list(objQ, (err, resp) => {
             if (err) {
