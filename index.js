@@ -4,6 +4,7 @@ const cors = require("cors");
 var deepEqual = require('deep-equal');
 const { google } = require('googleapis');
 const folderID = "1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO";
+var ArrayOfFolder = [];
 //firebase
 let config = {
     apiKey: "AIzaSyDLi5odhLcnMqKim-bj9Z6kQyeg7-6DKmo",
@@ -54,6 +55,9 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("RUNNNNN BITCH ");
+    refreshToken().then(() => {
+        CheckDriveChanges();
+    })
 });
 
 //START test routes----------------------------------------------------------//
@@ -244,9 +248,9 @@ app.get("/ScanYoutube", (req, res) => {
                             console.log("running updates");
                             database.ref("general/channels").set(temp);
                             res.send("updates triggered");
-                            RouteAllvideos.then(()=>{
+                            RouteAllvideos.then(() => {
                                 console.log("Video content Written");
-                                Routeplaylist().then(()=>{
+                                Routeplaylist().then(() => {
                                     console.log("Audio content Written");
                                 })
                             })
@@ -377,7 +381,7 @@ function CheckDriveChanges() {
             includeSubscribed: true,
             includeTeamDriveItems: false,
             maxResults: 50,
-            fields: 'items(file(downloadUrl,fileExtension,id,mimeType,ownerNames,parents/id,title),id),kind,largestChangeId,newStartPageToken,nextPageToken',
+            fields: 'items(file(downloadUrl,fileExtension,id,mimeType,ownerNames,parents/id,labels/trashed,title),id),kind,largestChangeId,newStartPageToken,nextPageToken',
             startChangeId: id
         }
         drive.changes.list(objQ, (err, res) => {
@@ -396,17 +400,29 @@ function CheckDriveChanges() {
                     }
                 }
                 let processData = (j) => {// &&ArrayChangesItems[j].ownerNames[0]=="Light of Self Light"
-                    if (ArrayChangesItems[j].file.mimeType == "application/vnd.google-apps.folder") {
-                        if (ArrayChangesItems[j].file.id == folderID) {
-                            folder(folderID);
-                            return;
-                        } else if (this.ArrayOfFolder.indexOf(ArrayChangesItems[j].file.id) === -1) {
-                            ArrayOfFolder.push(ArrayChangesItems[j].file.id);
+                    // "&&ArrayChangesItems[j].labels.trashed"
+                    let ItemProcessing = ArrayChangesItems[j];
+                    if (ItemProcessing.file.mimeType == "application/vnd.google-apps.folder"&&ItemProcessing.file.labels.trashed == false) {
+                        if (ItemProcessing.file.id == folderID) {
+                            // ArrayOfFolder.length=0;
+                            // folder(folderID);
+                            // return;
+                            loophandler();
+                        } else if (ArrayOfFolder.indexOf(ItemProcessing.file.id) === -1) {
+                            ArrayOfFolder.push(ItemProcessing.file.id);
                             loophandler();
                         }
+                    } else if (ItemProcessing.file.labels.trashed == true) {//deleted file
+                        if (ItemProcessing.file.parents.length != 0) {//audio file deleted
+                            deleteAudio(ItemProcessing).then(() => {
+                                loophandler();
+                            })
+                        }
                     } else {//audio
-                        if (this.ArrayOfFolder.indexOf(ArrayChangesItems[j].file.parents[0].id) === -1) {
-                            ArrayOfFolder.push(ArrayChangesItems[j].file.parents[0].id);
+                        if (ArrayChangesItems[j].file.parents.length != 0) {
+                            if (ArrayOfFolder.indexOf(ArrayChangesItems[j].file.parents[0].id) === -1) {
+                                ArrayOfFolder.push(ArrayChangesItems[j].file.parents[0].id);
+                            }
                         }
                         loophandler();
                     }
@@ -415,6 +431,15 @@ function CheckDriveChanges() {
             }
         })
     });
+}
+function deleteAudio(item) {
+    return new Promise((res, rej) => {
+        let p1 = database.ref("AllContents/" + item.file.id).remove();
+        let p2 = database.ref("Collection/" + item.file.parents[0].id).remove();
+        Promise.all([p1, p2]).then(() => {
+            res();
+        })
+    })
 }
 async function CleanAudiosCollection() {
     let AllCollection = await database.ref("/Collections/").once('value');
@@ -501,6 +526,7 @@ function folder(id) {
 function getLastTransactionGoogleDriveID() {//1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO
     return new Promise((resolve, reject) => {
         database.ref("/GoogleDriveTransactionID").once('value').then((id) => {
+            console.log("Processing from Google Drive Transaction : " + id.val());
             resolve(id.val());
         })
     })
@@ -539,7 +565,6 @@ function AudioDetails(AudioObj) {
         delete AudioObj["createdDate"];
         delete AudioObj["parents"];
         database.ref("/Collections/" + path + "/" + AudioObj.id).update(AudioObj).then(() => {
-            countAudios++;
             database.ref("/AllContents/" + AudioObj.id).set(AudioObj).then(() => {
                 resolve();
             })
