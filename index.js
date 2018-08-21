@@ -55,9 +55,7 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
-    // refreshToken().then(() => {
-    //     CheckDriveChanges();
-    // })
+    Routeplaylist();
 });
 
 //START test routes----------------------------------------------------------//
@@ -114,7 +112,7 @@ function RouteAllvideos() {
                 })
             }, ArrayChannelVideos[i], LoopHandler);
         }
-        LoopArrayChannel(0)
+        LoopArrayChannel(0);
     });
 }
 
@@ -215,7 +213,9 @@ app.get("/ScanDrive", (req, res) => {
 
 app.get("/forceUpdateDrive", (req, res) => {
     res.send("Force Updating Drive...");
-    folder(folderID);
+    refreshToken().then(() => {
+        folder(folderID);
+    })
 })
 
 //Counter videoroutes
@@ -287,7 +287,9 @@ function writeExtraDetails(data) {
     return new Promise((resolve, reject) => {
         database.ref("Collections-Meta/" + data.playlistid).update({
             "NoOfVideos": data.pageInfo.totalResults,
-            "Name": data.title
+            "Name": data.title,
+            "publishedAt" :data.publishedAt,
+            "timestamp":(new Date(data.publishedAt)).valueOf()
         }).then(() => {
             resolve();
         });
@@ -377,8 +379,9 @@ function CheckDriveChanges() {
             includeTeamDriveItems: false,
             maxResults: 50,
             fields: 'items(file(downloadUrl,fileExtension,id,mimeType,ownerNames,parents/id,labels/trashed,title),id),kind,largestChangeId,newStartPageToken,nextPageToken',
-            startChangeId: id
         }
+        if (id != null)
+            objQ[pageToken] = id;
         drive.changes.list(objQ, (err, res) => {
             if (err) {
                 console.log("API error :" + err)
@@ -395,7 +398,7 @@ function CheckDriveChanges() {
                     }
                 }
                 let processData = (j) => {// &&ArrayChangesItems[j].ownerNames[0]=="Light of Self Light"
-                    // "&&ArrayChangesItems[j].labels.trashed"
+                    // "&&ArrayChangesItems[j].labels.trashed"//"ownerNames": [ "Prathiba Krishna"]
                     if (ArrayChangesItems.length == 0) {
                         console.log("No changes");
                         return;
@@ -493,7 +496,7 @@ function i(resp) {
                                 loophandler();
                             });
                         }
-                    }else{
+                    } else {
                         loophandler();
                     }
                 } else {
@@ -539,7 +542,8 @@ function getLastTransactionGoogleDriveID() {//1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO
     })
 }
 function updateLastTransactionGoogleDriveID(id) {
-    database.ref("/GoogleDriveTransactionID").set(id);
+    if (id != null || id != undefined)
+        database.ref("/GoogleDriveTransactionID").set(id);
 }
 function reducearray() {
     return new Promise((resolve, reject) => {
@@ -558,8 +562,12 @@ function printStack() {
 }
 function FolderDetails(FolderObj) {
     return new Promise((resolve, reject) => {
-        delete FolderObj.parents;
-        database.ref("/Collections-Meta/" + FolderObj.id).set(FolderObj).then(() => {
+        database.ref("/Collections-Meta/" + FolderObj.id).set({
+            "publishedAt":formatDate2(FolderObj.createdDate),
+            "timestamp":(new Date(FolderObj.createdDate)).valueOf(),
+            "id":FolderObj.id,
+            "title":FolderObj.title
+        }).then(() => {
             resolve();
         });
     })

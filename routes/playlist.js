@@ -214,7 +214,7 @@ var processRequest = function (callbackindex, ChannelIID, LoopHandler) {
                     LoopHandler();
             }
             let processPlaylistChannels = (j) => {
-                processs.getVideos(ArrayPlaylistChannel[j].id, callbackindex, ArrayPlaylistChannel[j].snippet.title, null, Looper);
+                processs.getVideos(ArrayPlaylistChannel[j].id, callbackindex, ArrayPlaylistChannel[j].snippet.title, null, Looper,publishedAt[j].snippet.publishedAt);
             }
             processPlaylistChannels(i);
         });

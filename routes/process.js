@@ -19,12 +19,13 @@ var jwtClient = new google.auth.JWT(
   null
 );
 var CallbackLooper;
+var publishedtime ; 
 
-
-function getVideos(playlistIDNODE, callbackindex, title, gg, loopfunctions) {
+function getVideos(playlistIDNODE, callbackindex, title, gg, loopfunctions,publishedAt) {
 
   // Load client secrets from a local file.
   CallbackLooper = loopfunctions;
+  publishedtime = publishedAt;
   var param = {
     'params': {
       'maxResults': '50',
@@ -147,6 +148,7 @@ function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, 
     }
     response.data['playlistid'] = playlistIDNODE;
     response.data['title'] = title;
+    response.data['publishedAt']=publishedtime;
     console.log("Playlist Tilte :" + title);
     if (response.data['nextPageToken'] == null || response.data['nextPageToken'] == undefined) {
       callbackindex(false, response.data).then(() => {

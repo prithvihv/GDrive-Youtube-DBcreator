@@ -19,13 +19,17 @@ firebase.initializeApp(config);
 let database = firebase.database();
 
 async function main() {
-    await NewC();
+    // await NewC();
+    await ClearALL();
     console.log("done");
 }
 
 async function NewC() {
     await database.ref('/NEW-Collections-Meta').remove();
     await database.ref('NEW-Collections').remove();
+}
+async function ClearALL(){
+    await database.ref("/").set(":)");
 }
 
 main();
