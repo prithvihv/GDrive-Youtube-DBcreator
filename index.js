@@ -55,6 +55,7 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
+    Routeplaylist();
 });
 //START test routes----------------------------------------------------------//
 {
