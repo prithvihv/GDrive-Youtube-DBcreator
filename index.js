@@ -55,9 +55,7 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
-    Routeplaylist();
 });
-
 //START test routes----------------------------------------------------------//
 {
     app.get('/', (req, res) => {
@@ -243,7 +241,7 @@ app.get("/ScanYoutube", (req, res) => {
                             console.log("running updates");
                             database.ref("general/channels").set(temp);
                             res.send("updates triggered");
-                            RouteAllvideos.then(() => {
+                            RouteAllvideos().then(() => {
                                 console.log("Video content Written");
                                 Routeplaylist().then(() => {
                                     console.log("Audio content Written");
@@ -288,8 +286,8 @@ function writeExtraDetails(data) {
         database.ref("Collections-Meta/" + data.playlistid).update({
             "NoOfVideos": data.pageInfo.totalResults,
             "Name": data.title,
-            "publishedAt" :data.publishedAt,
-            "timestamp":(new Date(data.publishedAt)).valueOf()
+            "publishedAt": data.publishedAt,
+            "timestamp": (new Date(data.publishedAt)).valueOf()
         }).then(() => {
             resolve();
         });
@@ -563,10 +561,10 @@ function printStack() {
 function FolderDetails(FolderObj) {
     return new Promise((resolve, reject) => {
         database.ref("/Collections-Meta/" + FolderObj.id).set({
-            "publishedAt":formatDate2(FolderObj.createdDate),
-            "timestamp":(new Date(FolderObj.createdDate)).valueOf(),
-            "id":FolderObj.id,
-            "title":FolderObj.title
+            "publishedAt": formatDate2(FolderObj.createdDate),
+            "timestamp": (new Date(FolderObj.createdDate)).valueOf(),
+            "id": FolderObj.id,
+            "title": FolderObj.title
         }).then(() => {
             resolve();
         });
