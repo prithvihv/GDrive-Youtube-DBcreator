@@ -55,7 +55,6 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
-    Routeplaylist();
 });
 //START test routes----------------------------------------------------------//
 {
@@ -72,6 +71,10 @@ app.listen(process.env.PORT || 3000, () => {
             indexArrayVideos = 0;
         });
         res.send("Cleared DB");
+    });
+
+    app.get('/AccentureInnovation',(req,res)=>{
+        res.sendFile(__dirname +'/index.html');
     });
 }
 //END test routes-----------------------------------------------------------//
