@@ -57,7 +57,7 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
-    GDriveStructureCreator();
+    GdriveSizes();
 });
 //START test routes----------------------------------------------------------//
 {
@@ -209,17 +209,10 @@ app.get("/AccesstokenRefesh", (req, res) => {
     });
 });
 
-app.get("/ScanDrive", (req, res) => {
-    res.send("Scanning drive");
+app.get("/dumpGdriveStructure", (res, rej) => {
+    res.send("Dumping GDrive");
     refreshToken().then(() => {
-        CheckDriveChanges();
-    })
-})
-
-app.get("/forceUpdateDrive", (req, res) => {
-    res.send("Force Updating Drive...");
-    refreshToken().then(() => {
-        folder(folderID);
+        GDriveStructureCreator();
     })
 })
 
@@ -369,23 +362,8 @@ function GDriverefreshAccessToken() {
         })
     })
 }
-
-async function CleanAudiosCollection() {//1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO
-    let AllCollection = await database.ref("/Collections/").once('value');
-    AllCollection.forEach(item => {
-        if (!item.key.startsWith("PL"))
-            database.ref("/Collections-Meta/" + item.key).update({ "NoOfAudios": item.numChildren() });
-    });
-    let CollectionMeta = await database.ref("/Collections-Meta/").once('value');
-    CollectionMeta.forEach(Metadata => {
-        if (Metadata.val()["NoOfAudios"] === undefined && Metadata.val()["NoOfVideos"] == undefined) {
-            database.ref("/Collections-Meta/" + Metadata.key).remove();
-        }
-    })
-    console.log("done");
-}
 async function GDriveStructureCreator() {
-    await  GDriverefreshAccessToken();
+    await GDriverefreshAccessToken();
     await initfolder();
     printStack();
     folder(queueFolder.shift());
@@ -421,12 +399,12 @@ async function folder(id) {
         q: `'${id}' in parents`,
         fields: 'items(createdDate,downloadUrl,parents/id,id,title,mimeType),nextPageToken'
     };
-    drive.files.list(objQ,async (err, resp) => {
+    drive.files.list(objQ, async (err, resp) => {
         if (err) {
             console.log("Die : Folder() DriveV2apiCall");
             console.error(err);
         } else {
-            if(resp["data"].items.length!=0){
+            if (resp["data"].items.length != 0) {
                 await dumpstructuredata(resp["data"], id);
             }
             if (queueFolder.length != 0) {
@@ -436,9 +414,26 @@ async function folder(id) {
             } else {
                 // CleanAudiosCollection();
                 console.log("/// done ///")
+                GdriveSizes();
             }
         }
     })
+}
+async function GdriveSizes() {
+    let allFiles = await database.ref("/GDriveStructure").once("value");
+    let dataallfiles = allFiles.val();
+    for (let Folder in dataallfiles) {
+        for (let FindDetailsFolder in dataallfiles[Folder]) {
+            if (dataallfiles[Folder][FindDetailsFolder].downloadUrl == null||dataallfiles[Folder][FindDetailsFolder].downloadUrl == undefined) {
+                let serachforsubfolder = await database.ref("/GDriveStructure/" + FindDetailsFolder).once("value");
+                if (serachforsubfolder.val() != null) {
+                    await database.ref("/GDriveStructure/" + FindDetailsFolder).update({ "NoOfAudios": serachforsubfolder.numChildren() });
+                    console.log("Found Data For : "+ FindDetailsFolder);
+                }
+            }
+        }
+    }
+    console.log("end")
 }
 function dumpstructuredata(data, parentid) {
     return new Promise((resolve, reject) => {
@@ -459,14 +454,6 @@ function dumpstructuredata(data, parentid) {
             nexthandler()
         }
         processdatafor(i)
-    })
-}
-function reducearray() { //testing function
-    return new Promise((resolve, reject) => {
-        let len = ArrayOfFolder.length - 1;
-        for (var i = 0; i < len; i++)
-            ArrayOfFolder.pop();
-        resolve();
     })
 }
 function printStack() {
