@@ -4,7 +4,9 @@ const cors = require("cors");
 var deepEqual = require('deep-equal');
 const { google } = require('googleapis');
 const folderID = "1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO";
-var ArrayOfFolder = [];
+//var ArrayOfFolder = [];
+let queueFolder = [];
+let lastfolderID = '';
 //firebase
 let config = {
     apiKey: "AIzaSyDLi5odhLcnMqKim-bj9Z6kQyeg7-6DKmo",
@@ -55,6 +57,7 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
+    GDriveStructureCreator();
 });
 //START test routes----------------------------------------------------------//
 {
@@ -73,8 +76,8 @@ app.listen(process.env.PORT || 3000, () => {
         res.send("Cleared DB");
     });
 
-    app.get('/AccentureInnovation',(req,res)=>{
-        res.sendFile(__dirname +'/index.html');
+    app.get('/AccentureInnovation', (req, res) => {
+        res.sendFile(__dirname + '/index.html');
     });
 }
 //END test routes-----------------------------------------------------------//
@@ -366,90 +369,8 @@ function GDriverefreshAccessToken() {
         })
     })
 }
-function triggerDriveupdates() {
-    printStack();
-    if (ArrayOfFolder.length != 0) {
-        let element = ArrayOfFolder.pop();
-        folder(element);
-    }
-}
-function CheckDriveChanges() {
-    getLastTransactionGoogleDriveID().then((id) => {
-        let objQ = {
-            includeDeleted: true,
-            includeSubscribed: true,
-            includeTeamDriveItems: false,
-            maxResults: 50,
-            fields: 'items(file(downloadUrl,fileExtension,id,mimeType,ownerNames,parents/id,labels/trashed,title),id),kind,largestChangeId,newStartPageToken,nextPageToken',
-        }
-        if (id != null)
-            objQ[pageToken] = id;
-        drive.changes.list(objQ, (err, res) => {
-            if (err) {
-                console.log("API error :" + err)
-            } else {
-                updateLastTransactionGoogleDriveID(res.data["newStartPageToken"]);
-                let j = 0;
-                let ArrayChangesItems = res.data["items"];
-                let loophandler = () => {
-                    j++;
-                    if (ArrayChangesItems.length > j)
-                        processData(j)
-                    else {
-                        triggerDriveupdates();
-                    }
-                }
-                let processData = (j) => {// &&ArrayChangesItems[j].ownerNames[0]=="Light of Self Light"
-                    // "&&ArrayChangesItems[j].labels.trashed"//"ownerNames": [ "Prathiba Krishna"]
-                    if (ArrayChangesItems.length == 0) {
-                        console.log("No changes");
-                        return;
-                    }
-                    let ItemProcessing = ArrayChangesItems[j];
-                    if (ItemProcessing.file.mimeType == "application/vnd.google-apps.folder" && ItemProcessing.file.labels.trashed == false) {
-                        if (ItemProcessing.file.id == folderID) {
-                            // ArrayOfFolder.length=0;
-                            // folder(folderID);
-                            // return;
-                            loophandler();
-                        } else if (ArrayOfFolder.indexOf(ItemProcessing.file.id) === -1) {
-                            ArrayOfFolder.push(ItemProcessing.file.id);
-                            loophandler();
-                        }
-                    } else if (ItemProcessing.file.labels.trashed == true) {//deleted file
-                        if (ItemProcessing.file.mimeType != "application/vnd.google-apps.folder") {//audio file deleted
-                            deleteAudio(ItemProcessing).then(() => {
-                                loophandler();
-                            })
-                        } else {
-                            deleteFolder(ItemProcessing).then(() => {
-                                loophandler();
-                            })
-                        }
-                    } else {//audio
-                        if (ArrayChangesItems[j].file.parents.length != 0) {
-                            if (ArrayOfFolder.indexOf(ArrayChangesItems[j].file.parents[0].id) === -1) {
-                                ArrayOfFolder.push(ArrayChangesItems[j].file.parents[0].id);
-                            }
-                        }
-                        loophandler();
-                    }
-                }
-                processData(0)
-            }
-        })
-    });
-}
-function deleteAudio(item) {
-    return new Promise((res, rej) => {
-        let p1 = database.ref("AllContents/" + item.file.id).remove();
-        let p2 = database.ref("Collection/" + item.file.parents[0].id).remove();
-        Promise.all([p1, p2]).then(() => {
-            res();
-        });
-    });
-}
-async function CleanAudiosCollection() {
+
+async function CleanAudiosCollection() {//1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO
     let AllCollection = await database.ref("/Collections/").once('value');
     AllCollection.forEach(item => {
         if (!item.key.startsWith("PL"))
@@ -463,91 +384,84 @@ async function CleanAudiosCollection() {
     })
     console.log("done");
 }
-
-function i(resp) {
-    return function () {
-        let ArrayData = resp.data["items"];
-        let j = 0;
-        return new Promise((resolve, reject) => {
-            let loophandler = () => {
-                j++;
-                if (ArrayData.length > j)
-                    processData(j)
-                else {
-                    if (ArrayOfFolder.length != 0)
-                        resolve();
-                    else
-                        CleanAudiosCollection();
-                }
-            }
-            let processData = (j) => {
-                if (ArrayData.length != 0) {
-                    if (!ArrayData[j].labels.trashed) {
-                        if (ArrayData[j].mimeType == "application/vnd.google-apps.folder") {
-                            FolderDetails(ArrayData[j]).then(() => {
-                                //console.log("folder : " + ArrayData[j].title);
-                                ArrayOfFolder.push(ArrayData[j].id);
-                                // reducearray().then(() => {
-                                //     loophandler();
-                                // })
-                                loophandler();
-                            });
-                        } else {//audio
-                            AudioDetails(ArrayData[j]).then(() => {
-                                //console.log("audio : " + ArrayData[j].title);
-                                loophandler();
-                            });
-                        }
-                    } else {
-                        loophandler();
-                    }
-                } else {
-                    loophandler();
-                }
-            }
-            processData(0)
-        })
-    }
+async function GDriveStructureCreator() {
+    await  GDriverefreshAccessToken();
+    await initfolder();
+    printStack();
+    folder(queueFolder.shift());
 }
-
-function folder(id) {
-    return new Promise(function (resolve, reject) {
+function initfolder() {
+    return new Promise((res, rej) => {
         let objQ = {
-            q: `'${id}' in parents`,
-            fields: 'items(createdDate,downloadUrl,id,title,mimeType,parents(id),labels/trashed),nextPageToken'
+            q: `'1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO' in parents`,
+            fields: 'items(createdDate,downloadUrl,id,title,mimeType),nextPageToken'
         };
-        drive.files.list(objQ, (err, resp) => {
+        drive.files.list(objQ, async (err, resp) => {
             if (err) {
-                console.log("Die : Folder() DriveV2apiCall");
-                console.error(err);
+                console.log("Die : initfolder() DriveV2apicall");
+                console.log(err);
             } else {
-                let Iterator = i(resp);
-                Iterator().then(() => {
-                    if (ArrayOfFolder.length != 0) {
-                        printStack();
-                        let element = ArrayOfFolder.pop();
-                        folder(element);
-                    } else {
-                        resolve();
-                    }
-                });
+                let dumpdata = resp.data["items"];
+                for (let i = 0; i < dumpdata.length; i++) {
+                    queueFolder.push(dumpdata[i].id);
+                    await database.ref("/NEWCollections-Meta/" + dumpdata[i].id).set({
+                        "publishedAt": formatDate2(dumpdata[i].createdDate),
+                        "timestamp": (new Date(dumpdata[i].createdDate)).valueOf(),
+                        "id": dumpdata[i].id,
+                        "title": dumpdata[i].title
+                    })
+                }
+                res();
             }
         })
     })
 }
-function getLastTransactionGoogleDriveID() {//1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO
-    return new Promise((resolve, reject) => {
-        database.ref("/GoogleDriveTransactionID").once('value').then((id) => {
-            console.log("Processing from Google Drive Transaction : " + id.val());
-            resolve(id.val());
-        })
+async function folder(id) {
+    let objQ = {
+        q: `'${id}' in parents`,
+        fields: 'items(createdDate,downloadUrl,parents/id,id,title,mimeType),nextPageToken'
+    };
+    drive.files.list(objQ,async (err, resp) => {
+        if (err) {
+            console.log("Die : Folder() DriveV2apiCall");
+            console.error(err);
+        } else {
+            if(resp["data"].items.length!=0){
+                await dumpstructuredata(resp["data"], id);
+            }
+            if (queueFolder.length != 0) {
+                printStack();
+                let element = queueFolder.shift();
+                folder(element);
+            } else {
+                // CleanAudiosCollection();
+                console.log("/// done ///")
+            }
+        }
     })
 }
-function updateLastTransactionGoogleDriveID(id) {
-    if (id != null || id != undefined)
-        database.ref("/GoogleDriveTransactionID").set(id);
+function dumpstructuredata(data, parentid) {
+    return new Promise((resolve, reject) => {
+        let dumpdata = data["items"];
+        let i = 0;
+        let nexthandler = () => {
+            i++
+            if (i < dumpdata.length)
+                processdatafor(i)
+            else
+                resolve();
+        }
+        let processdatafor = async (i) => {
+            if (dumpdata[i].mimeType == "application/vnd.google-apps.folder")
+                await FolderDetails(dumpdata[i], parentid)
+            else
+                await AudioDetails(dumpdata[i], parentid)
+            nexthandler()
+        }
+        processdatafor(i)
+    })
 }
-function reducearray() {
+function reducearray() { //testing function
     return new Promise((resolve, reject) => {
         let len = ArrayOfFolder.length - 1;
         for (var i = 0; i < len; i++)
@@ -557,14 +471,15 @@ function reducearray() {
 }
 function printStack() {
     console.log("----------------------------------------");
-    ArrayOfFolder.forEach(item => {
+    queueFolder.forEach(item => {
         console.log(item);
     });
     console.log("----------------------------------------")
 }
-function FolderDetails(FolderObj) {
+function FolderDetails(FolderObj, parentid) {
     return new Promise((resolve, reject) => {
-        database.ref("/Collections-Meta/" + FolderObj.id).set({
+        queueFolder.push(FolderObj.id);
+        database.ref("/GDriveStructure/" + parentid + "/" + FolderObj.id).set({
             "publishedAt": formatDate2(FolderObj.createdDate),
             "timestamp": (new Date(FolderObj.createdDate)).valueOf(),
             "id": FolderObj.id,
@@ -574,14 +489,13 @@ function FolderDetails(FolderObj) {
         });
     })
 }
-function AudioDetails(AudioObj) {
+function AudioDetails(AudioObj, parentid) {
     return new Promise((resolve, reject) => {
-        let path = AudioObj.parents[0].id;
         AudioObj["publishedAt"] = formatDate2(AudioObj["createdDate"]);
         AudioObj["timestamp"] = (new Date(AudioObj["createdDate"])).valueOf();
         delete AudioObj["createdDate"];
         delete AudioObj["parents"];
-        database.ref("/Collections/" + path + "/" + AudioObj.id).update(AudioObj).then(() => {
+        database.ref("/GDriveStructure/" + parentid + "/" + AudioObj.id).update(AudioObj).then(() => {
             database.ref("/AllContents/" + AudioObj.id).set(AudioObj).then(() => {
                 resolve();
             })
@@ -594,10 +508,3 @@ function formatDate2(input) {
     return input.substring(8, 10) + "-" + input.substring(4, 7) + "-" + input.substring(11, 15);
 }
 
-function deleteFolder(ItemProcessing) {
-    return new Promise((res, rej) => {
-        database.ref("Collections/" + ItemProcessing.file.id).remove().then(() => {
-            res();
-        })
-    })
-}
