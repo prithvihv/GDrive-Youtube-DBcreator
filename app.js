@@ -57,7 +57,7 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
-    GdriveSizes();
+    //GDriveStructureCreator();
 });
 //START test routes----------------------------------------------------------//
 {
@@ -372,7 +372,7 @@ function initfolder() {
     return new Promise((res, rej) => {
         let objQ = {
             q: `'1yhcRUfFAltmN4izu1k7cBoIe_HM1MrgO' in parents`,
-            fields: 'items(createdDate,downloadUrl,id,title,mimeType),nextPageToken'
+            fields: 'items(modifiedDate,downloadUrl,id,title,mimeType),nextPageToken'
         };
         drive.files.list(objQ, async (err, resp) => {
             if (err) {
@@ -383,10 +383,10 @@ function initfolder() {
                 for (let i = 0; i < dumpdata.length; i++) {
                     queueFolder.push(dumpdata[i].id);
                     await database.ref("/NEWCollections-Meta/" + dumpdata[i].id).set({
-                        "publishedAt": formatDate2(dumpdata[i].createdDate),
-                        "timestamp": (new Date(dumpdata[i].createdDate)).valueOf(),
+                        "publishedAt": formatDate2(dumpdata[i].modifiedDate),
+                        "timestamp": (new Date(dumpdata[i].modifiedDate)).valueOf(),
                         "id": dumpdata[i].id,
-                        "title": dumpdata[i].title
+                        "Name": dumpdata[i].title
                     })
                 }
                 res();
@@ -397,7 +397,7 @@ function initfolder() {
 async function folder(id) {
     let objQ = {
         q: `'${id}' in parents`,
-        fields: 'items(createdDate,downloadUrl,parents/id,id,title,mimeType),nextPageToken'
+        fields: 'items(modifiedDate,downloadUrl,parents/id,id,title,mimeType),nextPageToken'
     };
     drive.files.list(objQ, async (err, resp) => {
         if (err) {
@@ -414,21 +414,34 @@ async function folder(id) {
             } else {
                 // CleanAudiosCollection();
                 console.log("/// done ///")
-                GdriveSizes();
+                await GdriveSizes();
+                console.log("O.o does this work ?")
             }
         }
     })
+}
+async function initGdriveSizes(){
+    let allCollections = await database.ref("/NEWCollections-Meta").once('value');
+    let InfoCollections = allCollections.val();
+    for(let Collection in InfoCollections){
+        if(InfoCollections[Collection]["Name"]!=(null||undefined)){
+            let allInfo = await database.ref("/GDriveStructure/" + Collection).once("value");
+            await database.ref("/NEWCollections-Meta/"+Collection).update({ "NoOfAudios": allInfo.numChildren() });
+            console.log("Found Data For : " + Collection + "has items :"+ allInfo.numChildren());
+        }
+    }
+    console.log("Completed method call initGdriveSize")
 }
 async function GdriveSizes() {
     let allFiles = await database.ref("/GDriveStructure").once("value");
     let dataallfiles = allFiles.val();
     for (let Folder in dataallfiles) {
         for (let FindDetailsFolder in dataallfiles[Folder]) {
-            if (dataallfiles[Folder][FindDetailsFolder].downloadUrl == null||dataallfiles[Folder][FindDetailsFolder].downloadUrl == undefined) {
+            if (dataallfiles[Folder][FindDetailsFolder].downloadUrl == null || dataallfiles[Folder][FindDetailsFolder].downloadUrl == undefined) {
                 let serachforsubfolder = await database.ref("/GDriveStructure/" + FindDetailsFolder).once("value");
                 if (serachforsubfolder.val() != null) {
-                    await database.ref("/GDriveStructure/" + FindDetailsFolder).update({ "NoOfAudios": serachforsubfolder.numChildren() });
-                    console.log("Found Data For : "+ FindDetailsFolder);
+                    await database.ref("/GDriveStructure/" + Folder +"/" + FindDetailsFolder).update({ "NoOfAudios": serachforsubfolder.numChildren() });
+                    console.log("Found Data For : " + FindDetailsFolder + "has items :"+ serachforsubfolder.numChildren());
                 }
             }
         }
@@ -467,10 +480,10 @@ function FolderDetails(FolderObj, parentid) {
     return new Promise((resolve, reject) => {
         queueFolder.push(FolderObj.id);
         database.ref("/GDriveStructure/" + parentid + "/" + FolderObj.id).set({
-            "publishedAt": formatDate2(FolderObj.createdDate),
-            "timestamp": (new Date(FolderObj.createdDate)).valueOf(),
+            "publishedAt": formatDate2(FolderObj.modifiedDate),
+            "timestamp": (new Date(FolderObj.modifiedDate)).valueOf(),
             "id": FolderObj.id,
-            "title": FolderObj.title
+            "Name": FolderObj.title
         }).then(() => {
             resolve();
         });
@@ -478,9 +491,9 @@ function FolderDetails(FolderObj, parentid) {
 }
 function AudioDetails(AudioObj, parentid) {
     return new Promise((resolve, reject) => {
-        AudioObj["publishedAt"] = formatDate2(AudioObj["createdDate"]);
-        AudioObj["timestamp"] = (new Date(AudioObj["createdDate"])).valueOf();
-        delete AudioObj["createdDate"];
+        AudioObj["publishedAt"] = formatDate2(AudioObj["modifiedDate"]);
+        AudioObj["timestamp"] = (new Date(AudioObj["modifiedDate"])).valueOf();
+        delete AudioObj["modifiedDate"];
         delete AudioObj["parents"];
         database.ref("/GDriveStructure/" + parentid + "/" + AudioObj.id).update(AudioObj).then(() => {
             database.ref("/AllContents/" + AudioObj.id).set(AudioObj).then(() => {
@@ -495,3 +508,6 @@ function formatDate2(input) {
     return input.substring(8, 10) + "-" + input.substring(4, 7) + "-" + input.substring(11, 15);
 }
 
+function clearDB(){
+    database.ref("/GDriveStructure").set("");
+}
