@@ -57,7 +57,18 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
+    Routeplaylist();
     //GDriveStructureCreator();
+    // database.ref("/NEWCollections-Meta").once('value').then((allv)=>{
+    //     let a = allv.val();
+    //     for(let gg in a ){
+    //         if(gg.startsWith("PL")){
+    //             database.ref("/NEWCollections-Meta/"+gg).remove()
+    //             console.log("removed " + gg)
+    //         }
+
+    //     }
+    // })
 });
 //START test routes----------------------------------------------------------//
 {
@@ -209,7 +220,7 @@ app.get("/AccesstokenRefesh", (req, res) => {
     });
 });
 
-app.get("/dumpGdriveStructure", (res, rej) => {
+app.get("/dumpGdriveStructure", (req, res) => {
     res.send("Dumping GDrive");
     refreshToken().then(() => {
         GDriveStructureCreator();
@@ -276,18 +287,18 @@ function writevideoDetails(video, playlistName) {
     return new Promise((resolve, reject) => {
         database.ref("AllContents/" + video.snippet.resourceId.videoId).once('value').then(dataSnap => {
             var temp = dataSnap.val();
-            database.ref("Collections/" + playlistName + "/" + video.snippet.resourceId.videoId).set(temp).then(() => { resolve(); });
-
+            database.ref("YoutubePlaylistData/" + playlistName + "/" + video.snippet.resourceId.videoId).set(temp).then(() => { resolve(); });
         })
     });
 }
 function writeExtraDetails(data) {
     return new Promise((resolve, reject) => {
-        database.ref("Collections-Meta/" + data.playlistid).update({
+        database.ref("NEWCollections-Meta/" + data.playlistid).update({
             "NoOfVideos": data.pageInfo.totalResults,
             "Name": data.title,
             "publishedAt": data.publishedAt,
-            "timestamp": (new Date(data.publishedAt)).valueOf()
+            "timestamp": (new Date(data.publishedAt)).valueOf(),
+            "id":data.playlistid
         }).then(() => {
             resolve();
         });
