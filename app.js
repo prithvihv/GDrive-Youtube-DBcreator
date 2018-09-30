@@ -57,7 +57,7 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
-    Routeplaylist();
+    initGdriveSizes();
     //GDriveStructureCreator();
     // database.ref("/NEWCollections-Meta").once('value').then((allv)=>{
     //     let a = allv.val();
@@ -426,7 +426,7 @@ async function folder(id) {
                 // CleanAudiosCollection();
                 console.log("/// done ///")
                 await GdriveSizes();
-                console.log("O.o does this work ?")
+                await initGdriveSizes();
             }
         }
     })
