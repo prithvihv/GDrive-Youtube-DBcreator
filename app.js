@@ -57,7 +57,7 @@ app.use(cors({ origin: true }));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("UP AND RUNNING");
-    initGdriveSizes();
+
     //GDriveStructureCreator();
     // database.ref("/NEWCollections-Meta").once('value').then((allv)=>{
     //     let a = allv.val();
