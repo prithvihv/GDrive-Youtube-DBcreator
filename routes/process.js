@@ -1,7 +1,4 @@
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
-var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
-  process.env.USERPROFILE) + '/.credentials/';
-var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 // Get playlists
 var request = require('request');
 var fs = require('fs');
@@ -10,7 +7,7 @@ var {google} = require('googleapis');
 //const isPlaylist = require("is-playlist");
 var count = 0;
 var that;
-var key = require('../AJapp-55843faea217.json');
+var key = require('../AjAppV2-phvajapp.json');
 var jwtClient = new google.auth.JWT(
   key.client_email,
   null,
@@ -19,7 +16,7 @@ var jwtClient = new google.auth.JWT(
   null
 );
 var CallbackLooper;
-var publishedtime ; 
+var publishedtime ;
 
 function getVideos(playlistIDNODE, callbackindex, title, gg, loopfunctions,publishedAt) {
 
@@ -51,28 +48,6 @@ function authorize(credentials, requestData, callback, callbackindex, title, pla
   getNewToken(oauth2Client, requestData, callback, callbackindex, title, playlistIDNODE);
 }
 function getNewToken(oauth2Client, requestData, callback, callbackindex, title, playlistIDNODE) {
-  // var authUrl = oauth2Client.generateAuthUrl({
-  //     access_type: 'offline',
-  //     scope: SCOPES
-  // });
-  // console.log('Authorize this app by visiting this url: ' , authUrl);
-  // var rl = readline.createInterface({
-  //     input: process.stdin,
-  //     output: process.stdout
-  // });
-  // rl.question('Enterprocessing the code from that page here: ', function (code) {
-  //     rl.close();
-  //     oauth2Client.getToken(code, function (err, token) {
-  //         if (err) {
-  //             console.log('Error while trying to retrieve access token', err);
-  //             return;
-  //         }
-  //         oauth2Client.credentials = token;
-  //         storeToken(token);
-  //         callback(oauth2Client, requestData, callbackthisFile);
-  //     });
-  // });
-
 
   jwtClient.authorize(function (err, tokens) {
     if (err) {
@@ -84,19 +59,9 @@ function getNewToken(oauth2Client, requestData, callback, callbackindex, title, 
 
     callback(oauth2Client, requestData, callbackindex, title, playlistIDNODE);
   });
-  
+
 }
-function storeToken(token) {
-  try {
-    fs.mkdirSync(TOKEN_DIR);
-  } catch (err) {
-    if (err.code != 'EEXIST') {
-      throw err;
-    }
-  }
-  fs.writeFile(TOKEN_PATH, JSON.stringify(token));
-  console.log('Token stored to ' + TOKEN_PATH);
-}
+
 function removeEmptyParameters(params) {
   for (var p in params) {
     if (!params[p] || params[p] == 'undefined') {
@@ -105,36 +70,7 @@ function removeEmptyParameters(params) {
   }
   return params;
 }
-function createResource(properties) {
-  var resource = {};
-  var normalizedProps = properties;
-  for (var p in properties) {
-    var value = properties[p];
-    if (p && p.substr(-2, 2) == '[]') {
-      var adjustedName = p.replace('[]', '');
-      if (value) {
-        normalizedProps[adjustedName] = value.split(',');
-      }
-      delete normalizedProps[p];
-    }
-  }
-  for (var p in normalizedProps) {
-    // Leave properties that don't have values out of inserted resource.
-    if (normalizedProps.hasOwnProperty(p) && normalizedProps[p]) {
-      var propArray = p.split('.');
-      var ref = resource;
-      for (var pa = 0; pa < propArray.length; pa++) {
-        var key = propArray[pa];
-        if (pa == propArray.length - 1) {
-          ref[key] = normalizedProps[p];
-        } else {
-          ref = ref[key] = ref[key] || {};
-        }
-      }
-    };
-  }
-  return resource;
-}
+
 //oauth2Client, requestData, callbackindex,title,playlistIDNODE,call
 function playlistItemsListByPlaylistId(auth, requestData, callbackindex, title, playlistIDNODE) {
   var service = google.youtube('v3');

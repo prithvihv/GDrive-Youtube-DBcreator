@@ -36,9 +36,6 @@ function GDriverefreshAccessToken() {
         database.ref('/GoogleDriveCredentials').once('value').then((credential) => {
             let GoogleDriveCredentail = credential.val();
             oauth2Client.credentials = GoogleDriveCredentail;
-            /**
-             * the below method refeshes the oauth2.accesstoken
-             */
             oauth2Client.refreshAccessToken((token) => {
                 console.log(oauth2Client.credentials.access_token);
                 database.ref('/GoogleDriveCredentials/access_token').set(oauth2Client.credentials.access_token).then(() => {

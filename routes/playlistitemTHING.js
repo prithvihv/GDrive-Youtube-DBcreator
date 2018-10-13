@@ -9,7 +9,7 @@ var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
-var key = require('../AJapp-55843faea217.json');
+var key = require('../AjAppV2-phvajapp.json');
 var jwtClient = new google.auth.JWT(
     key.client_email,
     null,
@@ -59,7 +59,7 @@ var processRequest = function (callbackIndex, playlistChannel, LoopHandler) {
         var clientSecret = credentials.web.client_secret;
         var clientId = credentials.web.client_id;
         var redirectUrl = credentials.web.redirect_uris[0];
-    
+
         var oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
         //       Check if we have previously stored a token.
@@ -83,29 +83,6 @@ var processRequest = function (callbackIndex, playlistChannel, LoopHandler) {
  *     client.
  */
 function getNewToken(oauth2Client, requestData, callback, callbackIndex) {
-    // var authUrl = oauth2Client.generateAuthUrl({
-    //     access_type: 'offline',
-    //     scope: SCOPES
-    // });
-    // console.log('Authorize this app by visiting this url: ', authUrl);
-    // var rl = readline.createInterface({
-    //     input: process.stdin,
-    //     output: process.stdout
-    // });
-    // rl.question('Enter the code from that page here: ', function (code) {
-    //     rl.close();
-    //     oauth2Client.getToken(code, function (err, token) {
-    //         if (err) {
-    //             console.log('Error while trying to retrieve access token', err);
-    //             return;
-    //         }
-    //         oauth2Client.credentials = token;
-    //         storeToken(token);
-    //         callback(oauth2Client, requestData, callbackIndex);
-    //     });
-    // });
-
-
     jwtClient.authorize(function (err, tokens) {
         if (err) {
             console.log(err);

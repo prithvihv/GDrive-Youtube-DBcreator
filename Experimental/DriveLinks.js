@@ -1,10 +1,10 @@
 const { google } = require('googleapis');
-
+const GDriveOauth = require('../GDriveOauth.js')
 var database
 
 const oauth2Client = new google.auth.OAuth2(
-    "512241350585-gp19bgimhm0151j9eelmjidho8dgdbpb.apps.googleusercontent.com",
-    "Mx7r2e2m9ODERZuTdMda6hdi",
+    GDriveOauth.Client_ID,
+    GDriveOauth.Client_secret,
     "urn:ietf:wg:oauth:2.0:oob"
 );
 
@@ -50,21 +50,6 @@ function writeAccesstoken(AT) {
     })
 }
 
-
-
-// database.ref('/GoogleDriveCredentials').once('value').then((credential) => {
-//     let GoogleDriveCredentail = credential.val();
-//     // oauth2Client.refreshToken
-//     oauth2Client.credentials = GoogleDriveCredentail;
-//     /**
-//      * the below method refeshes the oauth2.accesstoken
-//      */
-//     oauth2Client.refreshAccessToken((token) => {
-//         console.log(oauth2Client.credentials.access_token);
-//         writeAccesstoken(AT)
-//         //main();
-//     })
-// })
 function getGdriveAudio() {
     return new Promise((resolve, recject) => {
         let objQ = {
@@ -100,7 +85,7 @@ function processApicall(respdata) {
 }
 
 /**
- * Gets all the  collection information 
+ * Gets all the  collection information
  * ==> each collection data is then loaded
  */
 function getGdrivePlaylist() {
@@ -137,9 +122,9 @@ function getGdrivePlaylist() {
 }
 
 /**
- * 
- * @param {string} foldID 
- * @param {string} CollectionName 
+ *
+ * @param {string} foldID
+ * @param {string} CollectionName
  * Loads data of the GDriveAudio into collections node
  */
 function getGdrivePlaylistdata(foldID, CollectionName) {

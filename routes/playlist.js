@@ -3,12 +3,10 @@ var processs = require('./process');
 var {google} = require('googleapis');
 
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
-var TOKEN_DIR = "./";
-var TOKEN_PATH = TOKEN_DIR + 'google-apis-nodejs-quickstart.json';
 // Get playlists
 var request = require('request');
 //var googleAuthJwt = require('google-oauth-jwt');
-var key = require('../AJapp-55843faea217.json');
+var key = require('../AjAppV2-phvajapp.json');
 var jwtClient = new google.auth.JWT(
     key.client_email,
     null,
@@ -44,28 +42,6 @@ function authorize(credentials, requestData, callback, callbackthisFile) {
 }
 
 function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
-    // var authUrl = oauth2Client.generateAuthUrl({
-    //     access_type: 'offline',
-    //     scope: SCOPES
-    // });
-    // console.log('Authorize this app by visiting this url: ' , authUrl);
-    // var rl = readline.createInterface({
-    //     input: process.stdin,
-    //     output: process.stdout
-    // });
-    // rl.question('Enterprocessing the code from that page here: ', function (code) {
-    //     rl.close();
-    //     oauth2Client.getToken(code, function (err, token) {
-    //         if (err) {
-    //             console.log('Error while trying to retrieve access token', err);
-    //             return;
-    //         }
-    //         oauth2Client.credentials = token;
-    //         storeToken(token);
-    //         callback(oauth2Client, requestData, callbackthisFile);
-    //     });
-    // });
-
 
     jwtClient.authorize((err, tokens) => {
         if (err) {
@@ -75,41 +51,7 @@ function getNewToken(oauth2Client, requestData, callback, callbackthisFile) {
         oauth2Client.credentials = tokens;
         callback(oauth2Client, requestData, callbackthisFile);
     });
-    // googleAuthJwt.authenticate({
-    //     // use the email address of the service account, as seen in the API console 
-    //     email: 'nodeserver@ajapp-192505.iam.gserviceaccount.com',
-    //     // use the PEM file we generated from the downloaded key 
-    //     keyFile: 'your-key-file.pem',
-    //     // specify the scopes you wish to access 
-    //     scopes: SCOPES
-    //   }, function (err, token) {
-    //     console.log(token);
-    //     console.log("JWT")
-    //     if(err){
-    //         console.log('Error while trying to retrieve access token', err);
-    //         return;
-    //     }
-    //     oauth2Client.credentials = token;
-    //     storeToken(token);
-    //     callback(oauth2Client, requestData, callbackthisFile);
-    //   });
-}
 
-/**
- * Store token to disk be used in later program executions.
- *
- * @param {Object} token The token to store to disk.
- */
-function storeToken(token) {
-    try {
-        fs.mkdirSync(TOKEN_DIR);
-    } catch (err) {
-        if (err.code != 'EEXIST') {
-            throw err;
-        }
-    }
-    fs.writeFile(TOKEN_PATH, JSON.stringify(token));
-    console.log('Token stored to ' + TOKEN_PATH);
 }
 
 /**
@@ -137,37 +79,6 @@ function removeEmptyParameters(params) {
  * @return {Object} A JSON object. The function nests properties based on
  *                  periods (.) in property names.
  */
-function createResource(properties) {
-    var resource = {};
-    var normalizedProps = properties;
-    for (var p in properties) {
-        var value = properties[p];
-        if (p && p.substr(-2, 2) == '[]') {
-            var adjustedName = p.replace('[]', '');
-            if (value) {
-                normalizedProps[adjustedName] = value.split(',');
-            }
-            delete normalizedProps[p];
-        }
-    }
-    for (var p in normalizedProps) {
-        // Leave properties that don't have values out of inserted resource.
-        if (normalizedProps.hasOwnProperty(p) && normalizedProps[p]) {
-            var propArray = p.split('.');
-            var ref = resource;
-            for (var pa = 0; pa < propArray.length; pa++) {
-                var key = propArray[pa];
-                if (pa == propArray.length - 1) {
-                    ref[key] = normalizedProps[p];
-                } else {
-                    ref = ref[key] = ref[key] || {};
-                }
-            }
-        };
-    }
-    return resource;
-}
-
 
 function playlistsListByChannelId(auth, requestData, callbackthisFile) {
     var service = google.youtube('v3');
